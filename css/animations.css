@@ -1,0 +1,581 @@
+/* =========================================================
+   LENCHOTECH
+   ANIMACIONES Y TRANSICIONES
+========================================================= */
+
+
+/* =========================================================
+   1. ANIMACIONES BASE
+========================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDrawerIn {
+    from {
+        transform: translateX(105%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideDrawerOut {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(105%);
+    }
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes toastOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(30px) scale(0.96);
+    }
+}
+
+@keyframes pulseSoft {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+@keyframes shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes bounceSmall {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes heartPop {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.35);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes cartPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.16);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* =========================================================
+   2. CARGA INICIAL
+========================================================= */
+
+body.page-loaded .top-bar {
+    animation: fadeInDown 500ms ease both;
+}
+
+body.page-loaded .header-main {
+    animation: fadeInDown 620ms ease 80ms both;
+}
+
+body.page-loaded .main-navigation {
+    animation: fadeInDown 620ms ease 140ms both;
+}
+
+body.page-loaded .intro-section__text {
+    animation: fadeInLeft 720ms ease 160ms both;
+}
+
+body.page-loaded .intro-section__feature-card {
+    animation: fadeInRight 720ms ease 260ms both;
+}
+
+body.page-loaded .benefit-item {
+    animation: fadeInUp 600ms ease both;
+}
+
+body.page-loaded .benefit-item:nth-child(1) {
+    animation-delay: 220ms;
+}
+
+body.page-loaded .benefit-item:nth-child(2) {
+    animation-delay: 300ms;
+}
+
+body.page-loaded .benefit-item:nth-child(3) {
+    animation-delay: 380ms;
+}
+
+body.page-loaded .benefit-item:nth-child(4) {
+    animation-delay: 460ms;
+}
+
+
+/* =========================================================
+   3. REVELADO AL HACER SCROLL
+========================================================= */
+
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 650ms ease,
+        transform 650ms ease;
+}
+
+.reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-34px);
+    transition:
+        opacity 650ms ease,
+        transform 650ms ease;
+}
+
+.reveal-left.is-revealed {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(34px);
+    transition:
+        opacity 650ms ease,
+        transform 650ms ease;
+}
+
+.reveal-right.is-revealed {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+
+/* =========================================================
+   4. TARJETAS DE CATEGORÍAS
+========================================================= */
+
+.category-card {
+    animation: fadeInUp 560ms ease both;
+}
+
+.category-card:nth-child(1) {
+    animation-delay: 40ms;
+}
+
+.category-card:nth-child(2) {
+    animation-delay: 80ms;
+}
+
+.category-card:nth-child(3) {
+    animation-delay: 120ms;
+}
+
+.category-card:nth-child(4) {
+    animation-delay: 160ms;
+}
+
+.category-card:nth-child(5) {
+    animation-delay: 200ms;
+}
+
+.category-card:nth-child(6) {
+    animation-delay: 240ms;
+}
+
+.category-card:nth-child(7) {
+    animation-delay: 280ms;
+}
+
+.category-card:nth-child(8) {
+    animation-delay: 320ms;
+}
+
+.category-card:hover .category-card__icon {
+    animation: bounceSmall 520ms ease;
+}
+
+
+/* =========================================================
+   5. TARJETAS DE PRODUCTOS
+========================================================= */
+
+.product-card {
+    animation: fadeInUp 520ms ease both;
+}
+
+.product-card.is-entering {
+    animation: fadeInUp 520ms ease both;
+}
+
+.product-card.is-removing {
+    opacity: 0;
+    transform: scale(0.94);
+    transition:
+        opacity 240ms ease,
+        transform 240ms ease;
+}
+
+.product-card:hover .product-card__favorite {
+    animation: fadeIn 220ms ease both;
+}
+
+.product-card__favorite.is-animating {
+    animation: heartPop 380ms ease;
+}
+
+.icon-button.is-animating {
+    animation: cartPulse 360ms ease;
+}
+
+
+/* =========================================================
+   6. PLACEHOLDER DE IMAGEN
+========================================================= */
+
+.product-image-placeholder {
+    background:
+        linear-gradient(
+            110deg,
+            var(--color-background-soft) 8%,
+            var(--color-background-muted) 18%,
+            var(--color-background-soft) 33%
+        );
+    background-size: 220% 100%;
+    animation: shimmer 3.2s linear infinite;
+}
+
+.product-image-placeholder__icon {
+    animation: pulseSoft 2.2s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   7. MENÚ DESPLEGABLE
+========================================================= */
+
+.mega-menu {
+    transform-origin: top center;
+}
+
+.navigation-dropdown.is-open .mega-menu,
+.navigation-dropdown:hover .mega-menu {
+    animation: fadeInDown 220ms ease both;
+}
+
+.dropdown-arrow {
+    transform-origin: center;
+}
+
+
+/* =========================================================
+   8. BUSCADOR
+========================================================= */
+
+.search-suggestions:not([hidden]) {
+    animation: fadeInDown 220ms ease both;
+}
+
+.search-suggestion {
+    transition:
+        background-color 160ms ease,
+        padding-left 160ms ease;
+}
+
+.search-suggestion:hover {
+    padding-left: 20px;
+}
+
+
+/* =========================================================
+   9. OVERLAY Y DRAWERS
+========================================================= */
+
+.drawer-overlay:not([hidden]) {
+    animation: fadeIn 240ms ease both;
+}
+
+.side-drawer.is-open {
+    animation: slideDrawerIn 280ms ease both;
+}
+
+.side-drawer.is-closing {
+    animation: slideDrawerOut 260ms ease both;
+}
+
+
+/* =========================================================
+   10. MODALES
+========================================================= */
+
+.modal:not([hidden]) .modal__overlay {
+    animation: fadeIn 220ms ease both;
+}
+
+.modal:not([hidden]) .modal__content {
+    animation: scaleIn 260ms ease both;
+}
+
+.modal.is-closing .modal__overlay {
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+.modal.is-closing .modal__content {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+        opacity 200ms ease,
+        transform 200ms ease;
+}
+
+
+/* =========================================================
+   11. BARRA DE COMPARACIÓN
+========================================================= */
+
+.compare-bar:not([hidden]) {
+    animation: fadeInUp 300ms ease both;
+}
+
+.compare-preview-item {
+    animation: scaleIn 220ms ease both;
+}
+
+
+/* =========================================================
+   12. NOTIFICACIONES
+========================================================= */
+
+.toast {
+    animation: toastIn 260ms ease both;
+}
+
+.toast.is-removing {
+    animation: toastOut 240ms ease both;
+}
+
+
+/* =========================================================
+   13. BOTÓN VOLVER ARRIBA
+========================================================= */
+
+.back-to-top-button:not([hidden]) {
+    animation: scaleIn 220ms ease both;
+}
+
+
+/* =========================================================
+   14. ESTADOS DE CARGA
+========================================================= */
+
+.loading-spinner {
+    width: 42px;
+    height: 42px;
+    border: 4px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 800ms linear infinite;
+}
+
+.product-skeleton {
+    min-height: 470px;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+}
+
+.product-skeleton__image,
+.product-skeleton__line {
+    background:
+        linear-gradient(
+            110deg,
+            var(--color-background-soft) 8%,
+            var(--color-background-muted) 18%,
+            var(--color-background-soft) 33%
+        );
+    background-size: 220% 100%;
+    animation: shimmer 1.8s linear infinite;
+}
+
+.product-skeleton__image {
+    width: 100%;
+    height: 230px;
+}
+
+.product-skeleton__content {
+    padding: 20px;
+}
+
+.product-skeleton__line {
+    height: 14px;
+    margin-bottom: 12px;
+    border-radius: var(--border-radius-pill);
+}
+
+.product-skeleton__line--short {
+    width: 38%;
+}
+
+.product-skeleton__line--medium {
+    width: 66%;
+}
+
+.product-skeleton__line--large {
+    width: 92%;
+}
+
+
+/* =========================================================
+   15. RESPETO A REDUCCIÓN DE MOVIMIENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal-on-scroll,
+    .reveal-left,
+    .reveal-right {
+        opacity: 1;
+        transform: none;
+    }
+}

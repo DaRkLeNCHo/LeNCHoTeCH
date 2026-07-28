@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="LeNCHoTeCH: tienda simulada de componentes, dispositivos y accesorios tecnológicos."
+    >
+
+    <meta
+        name="author"
+        content="LeNCHoTeCH"
+    >
+
+    <meta
+        name="theme-color"
+        content="#ffffff"
+    >
+
+    <title>LeNCHoTeCH | Todo lo que pase es mi culpa</title>
+
+    <!-- Fuente -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Hojas de estilo -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <!-- ==================================================
+         ACCESIBILIDAD
+    =================================================== -->
+
+    <a href="#main-content" class="skip-link">
+        Saltar al contenido principal
+    </a>
+
+
+    <!-- ==================================================
+         BARRA SUPERIOR
+    =================================================== -->
+
+    <div class="top-bar">
+        <div class="container top-bar__content">
+
+            <p>
+                Envío simulado gratis en órdenes de $75 o más
+            </p>
+
+            <div class="top-bar__links">
+                <a href="#about">Sobre nosotros</a>
+                <a href="#contact">Contacto</a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ==================================================
+         HEADER PRINCIPAL
+    =================================================== -->
+
+    <header class="main-header" id="home">
+
+        <div class="container header-main">
+
+            <!-- Logo -->
+            <a
+                href="#home"
+                class="brand"
+                aria-label="Ir al inicio de LeNCHoTeCH"
+            >
+
+                <div class="brand__logo-container">
+
+                    <img
+                        id="site-logo"
+                        class="brand__logo"
+                        src="images/logo/logo.webp"
+                        alt="Logo de LeNCHoTeCH"
+                    >
+
+                    <!-- Se mostrará si logo.webp no existe -->
+                    <div
+                        id="logo-fallback"
+                        class="brand__fallback"
+                        aria-hidden="true"
+                    >
+                        <span class="brand__fallback-main">
+                            LeNCHoTeCH
+                        </span>
+
+                        <span class="brand__fallback-accent">
+                            TECH STORE
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="brand__text">
+                    <span class="brand__name">
+                        LeNCHoTeCH
+                    </span>
+
+                    <span class="brand__slogan">
+                        “Todo lo que pase es mi culpa”
+                    </span>
+                </div>
+
+            </a>
+
+
+            <!-- Barra de búsqueda -->
+            <form
+                class="search-box"
+                id="search-form"
+                role="search"
+                autocomplete="off"
+            >
+
+                <label
+                    for="search-input"
+                    class="sr-only"
+                >
+                    Buscar productos
+                </label>
+
+                <span
+                    class="search-box__icon"
+                    aria-hidden="true"
+                >
+                    🔍
+                </span>
+
+                <input
+                    type="search"
+                    id="search-input"
+                    class="search-box__input"
+                    placeholder="Buscar productos, marcas o categorías..."
+                    maxlength="80"
+                >
+
+                <button
+                    type="button"
+                    id="clear-search-button"
+                    class="search-box__clear"
+                    aria-label="Limpiar búsqueda"
+                    title="Limpiar búsqueda"
+                    hidden
+                >
+                    ×
+                </button>
+
+                <button
+                    type="submit"
+                    class="search-box__button"
+                >
+                    Buscar
+                </button>
+
+                <!-- Resultados sugeridos -->
+                <div
+                    id="search-suggestions"
+                    class="search-suggestions"
+                    role="listbox"
+                    hidden
+                ></div>
+
+            </form>
+
+
+            <!-- Acciones del usuario -->
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    id="favorites-button"
+                    class="icon-button"
+                    aria-label="Ver productos favoritos"
+                    title="Favoritos"
+                >
+                    <span
+                        class="icon-button__icon"
+                        aria-hidden="true"
+                    >
+                        ♡
+                    </span>
+
+                    <span class="icon-button__label">
+                        Favoritos
+                    </span>
+
+                    <span
+                        id="favorites-count"
+                        class="counter-badge"
+                        aria-label="0 productos favoritos"
+                    >
+                        0
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    id="cart-button"
+                    class="icon-button"
+                    aria-label="Abrir carrito de compras"
+                    title="Carrito"
+                >
+                    <span
+                        class="icon-button__icon"
+                        aria-hidden="true"
+                    >
+                        🛒
+                    </span>
+
+                    <span class="icon-button__label">
+                        Carrito
+                    </span>
+
+                    <span
+                        id="cart-count"
+                        class="counter-badge"
+                        aria-label="0 productos en el carrito"
+                    >
+                        0
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    id="theme-toggle"
+                    class="icon-button icon-button--theme"
+                    aria-label="Activar modo oscuro"
+                    title="Cambiar tema"
+                >
+                    <span
+                        id="theme-icon"
+                        class="icon-button__icon"
+                        aria-hidden="true"
+                    >
+                        🌙
+                    </span>
+
+                    <span class="icon-button__label">
+                        Tema
+                    </span>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             NAVEGACIÓN PRINCIPAL
+        =================================================== -->
+
+        <nav
+            class="main-navigation"
+            aria-label="Navegación principal"
+        >
+
+            <div class="container navigation-content">
+
+                <!-- Botón móvil -->
+                <button
+                    type="button"
+                    id="mobile-menu-button"
+                    class="mobile-menu-button"
+                    aria-label="Abrir menú principal"
+                    aria-expanded="false"
+                    aria-controls="main-menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+
+                <ul
+                    id="main-menu"
+                    class="navigation-menu"
+                >
+
+                    <li>
+                        <a
+                            href="#home"
+                            class="navigation-link active"
+                            data-navigation="home"
+                        >
+                            Inicio
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#products"
+                            class="navigation-link"
+                            data-navigation="products"
+                        >
+                            Productos
+                        </a>
+                    </li>
+
+
+                    <!-- Menú desplegable de categorías -->
+                    <li class="navigation-dropdown">
+
+                        <button
+                            type="button"
+                            class="navigation-link navigation-dropdown__button"
+                            aria-expanded="false"
+                        >
+                            Categorías
+
+                            <span
+                                class="dropdown-arrow"
+                                aria-hidden="true"
+                            >
+                                ▾
+                            </span>
+                        </button>
+
+
+                        <div class="mega-menu">
+
+                            <!-- Displays -->
+                            <section class="mega-menu__group">
+
+                                <h3>Displays</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="IPS"
+                                >
+                                    IPS
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="VA"
+                                >
+                                    VA
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="TN"
+                                >
+                                    TN
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="OLED"
+                                >
+                                    OLED
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="Mini-LED"
+                                >
+                                    Mini-LED
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Displays"
+                                    data-subcategory="Touchscreen"
+                                >
+                                    Touchscreen
+                                </button>
+
+                            </section>
+
+
+                            <!-- Cables -->
+                            <section class="mega-menu__group">
+
+                                <h3>Cables y conectores</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Copper"
+                                >
+                                    Copper
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Coaxial"
+                                >
+                                    Coaxial
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Fiber"
+                                >
+                                    Fiber
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="USB"
+                                >
+                                    USB
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Video"
+                                >
+                                    Video
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Storage"
+                                >
+                                    Storage
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Cables"
+                                    data-subcategory="Connectors"
+                                >
+                                    Connectors
+                                </button>
+
+                            </section>
+
+
+                            <!-- RAM -->
+                            <section class="mega-menu__group">
+
+                                <h3>RAM</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="RAM"
+                                    data-subcategory="DIMM"
+                                >
+                                    DIMM
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="RAM"
+                                    data-subcategory="SODIMM"
+                                >
+                                    SODIMM
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="RAM"
+                                    data-subcategory="ECC"
+                                >
+                                    ECC
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="RAM"
+                                    data-subcategory="Non-ECC"
+                                >
+                                    Non-ECC
+                                </button>
+
+                            </section>
+
+
+                            <!-- Storage -->
+                            <section class="mega-menu__group">
+
+                                <h3>Storage</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="HDD"
+                                >
+                                    HDD
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="SSD SATA"
+                                >
+                                    SSD SATA
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="SSD NVMe"
+                                >
+                                    SSD NVMe
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="M.2"
+                                >
+                                    M.2
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="mSATA"
+                                >
+                                    mSATA
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="Removable"
+                                >
+                                    Removable
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Storage"
+                                    data-subcategory="Optical"
+                                >
+                                    Optical
+                                </button>
+
+                            </section>
+
+
+                            <!-- Motherboards y componentes -->
+                            <section class="mega-menu__group">
+
+                                <h3>PC Components</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Components"
+                                    data-subcategory="Motherboards"
+                                >
+                                    Motherboards
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Components"
+                                    data-subcategory="Expansion Cards"
+                                >
+                                    Expansion Cards
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Components"
+                                    data-subcategory="Cooling"
+                                >
+                                    Cooling
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Components"
+                                    data-subcategory="Power Supplies"
+                                >
+                                    Power Supplies
+                                </button>
+
+                            </section>
+
+
+                            <!-- Printers -->
+                            <section class="mega-menu__group">
+
+                                <h3>Printers</h3>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Printers"
+                                    data-subcategory="Laser"
+                                >
+                                    Laser
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Printers"
+                                    data-subcategory="Inkjet"
+                                >
+                                    Inkjet
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Printers"
+                                    data-subcategory="Multifunction"
+                                >
+                                    Multifunction
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Maintenance"
+                                    data-subcategory="Toner"
+                                >
+                                    Toner
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Maintenance"
+                                    data-subcategory="Ink"
+                                >
+                                    Ink
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="subcategory-link"
+                                    data-category="Maintenance"
+                                    data-subcategory="Maintenance Kits"
+                                >
+                                    Maintenance Kits
+                                </button>
+
+                            </section>
+
+                        </div>
+
+                    </li>
+
+
+                    <li>
+                        <button
+                            type="button"
+                            id="offers-navigation-button"
+                            class="navigation-link navigation-link--button"
+                        >
+                            Ofertas
+                        </button>
+                    </li>
+
+                    <li>
+                        <a
+                            href="#contact"
+                            class="navigation-link"
+                        >
+                            Contacto
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ==================================================
+         CONTENIDO PRINCIPAL
+    =================================================== -->
+
+    <main id="main-content">
+
+
+        <!-- ==================================================
+             PRESENTACIÓN
+        =================================================== -->
+
+        <section class="intro-section">
+
+            <div class="container intro-section__content">
+
+                <div class="intro-section__text">
+
+                    <span class="eyebrow">
+                        Componentes, periféricos y más
+                    </span>
+
+                    <h1>
+                        Tecnología para cada parte de tu equipo
+                    </h1>
+
+                    <p>
+                        Explora nuestra selección de pantallas, cables,
+                        almacenamiento, memoria, componentes, impresoras
+                        y productos de mantenimiento.
+                    </p>
+
+                    <div class="intro-section__actions">
+
+                        <a
+                            href="#products"
+                            class="primary-button"
+                        >
+                            Explorar productos
+                        </a>
+
+                        <button
+                            type="button"
+                            id="view-categories-button"
+                            class="secondary-button"
+                        >
+                            Ver categorías
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="intro-section__feature-card"
+                    aria-label="Información destacada"
+                >
+
+                    <span class="feature-card__icon">
+                        ⚡
+                    </span>
+
+                    <div>
+                        <strong>
+                            LeNCHoTeCH
+                        </strong>
+
+                        <p>
+                            Todo lo que pase es mi culpa.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             BENEFICIOS
+        =================================================== -->
+
+        <section
+            class="benefits-section"
+            aria-label="Beneficios de la tienda"
+        >
+
+            <div class="container benefits-grid">
+
+                <article class="benefit-item">
+                    <span aria-hidden="true">📦</span>
+
+                    <div>
+                        <h2>Amplio catálogo</h2>
+                        <p>Productos de todas las categorías estudiadas.</p>
+                    </div>
+                </article>
+
+                <article class="benefit-item">
+                    <span aria-hidden="true">🔍</span>
+
+                    <div>
+                        <h2>Búsqueda rápida</h2>
+                        <p>Encuentra productos por nombre, marca o tipo.</p>
+                    </div>
+                </article>
+
+                <article class="benefit-item">
+                    <span aria-hidden="true">⚖️</span>
+
+                    <div>
+                        <h2>Comparación</h2>
+                        <p>Compara características antes de seleccionar.</p>
+                    </div>
+                </article>
+
+                <article class="benefit-item">
+                    <span aria-hidden="true">🌙</span>
+
+                    <div>
+                        <h2>Modo oscuro</h2>
+                        <p>Una experiencia cómoda en cualquier momento.</p>
+                    </div>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CATEGORÍAS DESTACADAS
+        =================================================== -->
+
+        <section
+            id="categories"
+            class="categories-section section"
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            Navega fácilmente
+                        </span>
+
+                        <h2>
+                            Categorías
+                        </h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="clear-category-filter-button"
+                        class="text-button"
+                        hidden
+                    >
+                        Mostrar todas
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="category-grid"
+                    class="category-grid"
+                >
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Displays"
+                    >
+                        <span class="category-card__icon">🖥️</span>
+                        <span class="category-card__name">Displays</span>
+                        <span class="category-card__description">
+                            IPS, VA, TN, OLED y más
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Cables"
+                    >
+                        <span class="category-card__icon">🔌</span>
+                        <span class="category-card__name">
+                            Cables
+                        </span>
+                        <span class="category-card__description">
+                            Red, video, datos y conectores
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="RAM"
+                    >
+                        <span class="category-card__icon">💾</span>
+                        <span class="category-card__name">
+                            RAM
+                        </span>
+                        <span class="category-card__description">
+                            DIMM, SODIMM, ECC y Non-ECC
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Storage"
+                    >
+                        <span class="category-card__icon">💽</span>
+                        <span class="category-card__name">
+                            Storage
+                        </span>
+                        <span class="category-card__description">
+                            HDD, SSD, NVMe y almacenamiento removible
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Components"
+                    >
+                        <span class="category-card__icon">🧩</span>
+                        <span class="category-card__name">
+                            Components
+                        </span>
+                        <span class="category-card__description">
+                            Tarjetas, motherboards y cooling
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Power Supplies"
+                    >
+                        <span class="category-card__icon">⚡</span>
+                        <span class="category-card__name">
+                            Power Supplies
+                        </span>
+                        <span class="category-card__description">
+                            Fuentes modulares y certificadas
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Printers"
+                    >
+                        <span class="category-card__icon">🖨️</span>
+                        <span class="category-card__name">
+                            Printers
+                        </span>
+                        <span class="category-card__description">
+                            Láser, inkjet y multifuncionales
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category-filter="Maintenance"
+                    >
+                        <span class="category-card__icon">🛠️</span>
+                        <span class="category-card__name">
+                            Maintenance
+                        </span>
+                        <span class="category-card__description">
+                            Tinta, tóner y mantenimiento
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CATÁLOGO DE PRODUCTOS
+        =================================================== -->
+
+        <section
+            id="products"
+            class="products-section section"
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            Catálogo LeNCHoTeCH
+                        </span>
+
+                        <h2>
+                            Todos los productos
+                        </h2>
+
+                        <p
+                            id="products-result-text"
+                            class="results-text"
+                            aria-live="polite"
+                        >
+                            Preparando catálogo...
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="catalog-layout">
+
+                    <!-- Panel lateral de filtros -->
+                    <aside
+                        id="filters-sidebar"
+                        class="filters-sidebar"
+                        aria-label="Filtros de productos"
+                    >
+
+                        <div class="filters-sidebar__header">
+
+                            <h3>Filtros</h3>
+
+                            <button
+                                type="button"
+                                id="close-filters-button"
+                                class="close-button"
+                                aria-label="Cerrar filtros"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+
+                        <div class="filter-group">
+
+                            <h4>Categoría</h4>
+
+                            <div
+                                id="category-filters"
+                                class="filter-options"
+                            >
+                                <!-- Generado desde JavaScript -->
+                            </div>
+
+                        </div>
+
+
+                        <div class="filter-group">
+
+                            <h4>Subcategoría</h4>
+
+                            <div
+                                id="subcategory-filters"
+                                class="filter-options"
+                            >
+                                <!-- Generado desde JavaScript -->
+                            </div>
+
+                        </div>
+
+
+                        <div class="filter-group">
+
+                            <h4>Disponibilidad</h4>
+
+                            <label class="checkbox-option">
+                                <input
+                                    type="checkbox"
+                                    id="in-stock-filter"
+                                >
+
+                                <span>Solo productos disponibles</span>
+                            </label>
+
+                        </div>
+
+
+                        <div class="filter-group">
+
+                            <h4>Precio máximo</h4>
+
+                            <div class="price-filter">
+
+                                <input
+                                    type="range"
+                                    id="price-range"
+                                    min="0"
+                                    max="2500"
+                                    step="25"
+                                    value="2500"
+                                >
+
+                                <div class="price-filter__values">
+                                    <span>$0</span>
+
+                                    <strong id="price-range-value">
+                                        $2,500
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="reset-filters-button"
+                            class="secondary-button secondary-button--full"
+                        >
+                            Restablecer filtros
+                        </button>
+
+                    </aside>
+
+
+                    <!-- Área de catálogo -->
+                    <div class="catalog-content">
+
+                        <div class="catalog-toolbar">
+
+                            <button
+                                type="button"
+                                id="open-filters-button"
+                                class="secondary-button filter-mobile-button"
+                            >
+                                Filtros
+                            </button>
+
+
+                            <div class="active-filters">
+
+                                <span id="active-filter-label">
+                                    Mostrando todos los productos
+                                </span>
+
+                            </div>
+
+
+                            <div class="sort-control">
+
+                                <label for="sort-select">
+                                    Ordenar:
+                                </label>
+
+                                <select id="sort-select">
+
+                                    <option value="featured">
+                                        Destacados
+                                    </option>
+
+                                    <option value="price-asc">
+                                        Precio: menor a mayor
+                                    </option>
+
+                                    <option value="price-desc">
+                                        Precio: mayor a menor
+                                    </option>
+
+                                    <option value="name-asc">
+                                        Nombre: A–Z
+                                    </option>
+
+                                    <option value="name-desc">
+                                        Nombre: Z–A
+                                    </option>
+
+                                    <option value="rating-desc">
+                                        Mejor valorados
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Productos generados por JavaScript -->
+                        <div
+                            id="products-grid"
+                            class="products-grid"
+                        ></div>
+
+
+                        <!-- Estado vacío -->
+                        <div
+                            id="empty-state"
+                            class="empty-state"
+                            hidden
+                        >
+
+                            <span
+                                class="empty-state__icon"
+                                aria-hidden="true"
+                            >
+                                🔍
+                            </span>
+
+                            <h3>
+                                No encontramos productos
+                            </h3>
+
+                            <p>
+                                Prueba con otra búsqueda o restablece los filtros.
+                            </p>
+
+                            <button
+                                type="button"
+                                id="empty-state-reset-button"
+                                class="primary-button"
+                            >
+                                Ver todos los productos
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             SOBRE NOSOTROS
+        =================================================== -->
+
+        <section
+            id="about"
+            class="about-section section"
+        >
+
+            <div class="container about-section__content">
+
+                <div>
+
+                    <span class="eyebrow">
+                        Nuestra tienda
+                    </span>
+
+                    <h2>
+                        Sobre LeNCHoTeCH
+                    </h2>
+
+                    <p>
+                        LeNCHoTeCH es una tienda simulada creada para mostrar
+                        diferentes categorías de hardware, dispositivos,
+                        accesorios y productos de mantenimiento tecnológico.
+                    </p>
+
+                    <p>
+                        Nuestro compromiso es ofrecer una navegación clara,
+                        información organizada y una experiencia visual similar
+                        a la de una tienda tecnológica real.
+                    </p>
+
+                </div>
+
+
+                <blockquote class="about-quote">
+                    <p>
+                        “Todo lo que pase es mi culpa.”
+                    </p>
+
+                    <cite>
+                        — Departamento oficial de excusas de LeNCHoTeCH
+                    </cite>
+                </blockquote>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CONTACTO
+        =================================================== -->
+
+        <section
+            id="contact"
+            class="contact-section section"
+        >
+
+            <div class="container contact-grid">
+
+                <div class="contact-information">
+
+                    <span class="eyebrow">
+                        ¿Necesitas ayuda?
+                    </span>
+
+                    <h2>
+                        Contáctanos
+                    </h2>
+
+                    <p>
+                        Este formulario funciona como demostración visual.
+                        No enviará información a un servidor real.
+                    </p>
+
+
+                    <div class="contact-information__items">
+
+                        <div>
+                            <span aria-hidden="true">✉️</span>
+
+                            <p>
+                                <strong>Email</strong>
+                                soporte@lenchotech.demo
+                            </p>
+                        </div>
+
+                        <div>
+                            <span aria-hidden="true">🕒</span>
+
+                            <p>
+                                <strong>Horario</strong>
+                                Lunes a viernes, 9:00 a. m. – 5:00 p. m.
+                            </p>
+                        </div>
+
+                        <div>
+                            <span aria-hidden="true">📍</span>
+
+                            <p>
+                                <strong>Ubicación</strong>
+                                Puerto Rico
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="contact-form"
+                    class="contact-form"
+                >
+
+                    <div class="form-group">
+
+                        <label for="contact-name">
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            id="contact-name"
+                            name="name"
+                            placeholder="Tu nombre"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contact-email">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            id="contact-email"
+                            name="email"
+                            placeholder="nombre@correo.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contact-subject">
+                            Asunto
+                        </label>
+
+                        <select
+                            id="contact-subject"
+                            name="subject"
+                            required
+                        >
+
+                            <option value="">
+                                Selecciona una opción
+                            </option>
+
+                            <option value="products">
+                                Información de productos
+                            </option>
+
+                            <option value="orders">
+                                Órdenes simuladas
+                            </option>
+
+                            <option value="technical">
+                                Ayuda técnica
+                            </option>
+
+                            <option value="other">
+                                Otro
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contact-message">
+                            Mensaje
+                        </label>
+
+                        <textarea
+                            id="contact-message"
+                            name="message"
+                            rows="5"
+                            placeholder="Escribe tu mensaje..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button primary-button--full"
+                    >
+                        Enviar mensaje
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==================================================
+         FOOTER
+    =================================================== -->
+
+    <footer class="main-footer">
+
+        <div class="container footer-grid">
+
+            <section class="footer-brand">
+
+                <h2>
+                    LeNCHoTeCH
+                </h2>
+
+                <p class="footer-brand__slogan">
+                    Todo lo que pase es mi culpa.
+                </p>
+
+                <p>
+                    Catálogo tecnológico creado como demostración educativa.
+                </p>
+
+            </section>
+
+
+            <section>
+
+                <h3>Tienda</h3>
+
+                <ul>
+                    <li>
+                        <a href="#products">Productos</a>
+                    </li>
+
+                    <li>
+                        <a href="#categories">Categorías</a>
+                    </li>
+
+                    <li>
+                        <button
+                            type="button"
+                            class="footer-link-button"
+                            id="footer-offers-button"
+                        >
+                            Ofertas
+                        </button>
+                    </li>
+                </ul>
+
+            </section>
+
+
+            <section>
+
+                <h3>Información</h3>
+
+                <ul>
+                    <li>
+                        <a href="#about">Sobre nosotros</a>
+                    </li>
+
+                    <li>
+                        <a href="#contact">Contacto</a>
+                    </li>
+
+                    <li>
+                        <a href="#home">Volver arriba</a>
+                    </li>
+                </ul>
+
+            </section>
+
+
+            <section>
+
+                <h3>Proyecto</h3>
+
+                <p>
+                    Creado con HTML, CSS y JavaScript.
+                </p>
+
+                <p>
+                    Preparado para GitHub Pages.
+                </p>
+
+            </section>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="container footer-bottom__content">
+
+                <p>
+                    © <span id="current-year"></span>
+                    LeNCHoTeCH. Proyecto educativo.
+                </p>
+
+                <p>
+                    No somos responsables. El slogan ya lo advirtió.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- ==================================================
+         PANEL DEL CARRITO
+    =================================================== -->
+
+    <div
+        id="drawer-overlay"
+        class="drawer-overlay"
+        hidden
+    ></div>
+
+
+    <aside
+        id="cart-drawer"
+        class="side-drawer"
+        aria-label="Carrito de compras"
+        aria-hidden="true"
+    >
+
+        <div class="side-drawer__header">
+
+            <div>
+                <span class="eyebrow">Tu selección</span>
+                <h2>Carrito</h2>
+            </div>
+
+            <button
+                type="button"
+                id="close-cart-button"
+                class="close-button"
+                aria-label="Cerrar carrito"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            id="cart-items"
+            class="side-drawer__content"
+        >
+            <!-- Generado desde cart.js -->
+        </div>
+
+
+        <div class="side-drawer__footer">
+
+            <div class="cart-summary-row">
+                <span>Subtotal</span>
+
+                <strong id="cart-subtotal">
+                    $0.00
+                </strong>
+            </div>
+
+            <p class="cart-disclaimer">
+                Compra simulada. No se procesará ningún pago.
+            </p>
+
+            <button
+                type="button"
+                id="checkout-button"
+                class="primary-button primary-button--full"
+            >
+                Finalizar compra
+            </button>
+
+            <button
+                type="button"
+                id="clear-cart-button"
+                class="secondary-button secondary-button--full"
+            >
+                Vaciar carrito
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==================================================
+         PANEL DE FAVORITOS
+    =================================================== -->
+
+    <aside
+        id="favorites-drawer"
+        class="side-drawer"
+        aria-label="Productos favoritos"
+        aria-hidden="true"
+    >
+
+        <div class="side-drawer__header">
+
+            <div>
+                <span class="eyebrow">Guardados</span>
+                <h2>Favoritos</h2>
+            </div>
+
+            <button
+                type="button"
+                id="close-favorites-button"
+                class="close-button"
+                aria-label="Cerrar favoritos"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            id="favorites-items"
+            class="side-drawer__content"
+        >
+            <!-- Generado desde favorites.js -->
+        </div>
+
+    </aside>
+
+
+    <!-- ==================================================
+         MODAL DE VISTA RÁPIDA
+    =================================================== -->
+
+    <div
+        id="quick-view-modal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-view-title"
+        hidden
+    >
+
+        <div
+            class="modal__overlay"
+            data-close-modal="quick-view"
+        ></div>
+
+
+        <div class="modal__content modal__content--product">
+
+            <button
+                type="button"
+                id="close-quick-view-button"
+                class="modal__close"
+                aria-label="Cerrar vista rápida"
+            >
+                ×
+            </button>
+
+
+            <div id="quick-view-content">
+                <!-- Generado desde JavaScript -->
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         COMPARADOR
+    =================================================== -->
+
+    <div
+        id="compare-bar"
+        class="compare-bar"
+        hidden
+    >
+
+        <div class="container compare-bar__content">
+
+            <div>
+
+                <strong>
+                    Comparar productos
+                </strong>
+
+                <span id="compare-count">
+                    0
+                </span>
+
+            </div>
+
+
+            <div
+                id="compare-items"
+                class="compare-preview"
+            ></div>
+
+
+            <div class="compare-bar__actions">
+
+                <button
+                    type="button"
+                    id="clear-compare-button"
+                    data-compare-action="clear"
+                    class="secondary-button"
+                >
+                    Limpiar
+                </button>
+
+                <button
+                    type="button"
+                    id="open-compare-button"
+                    data-compare-action="open"
+                    class="primary-button"
+                    disabled
+                >
+                    Comparar
+                </button>
+
+            
+        
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="compare-modal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compare-modal-title"
+        hidden
+    >
+
+        <div
+            class="modal__overlay"
+            data-compare-action="close"
+        ></div>
+
+
+        <div class="modal__content modal__content--large">
+
+            <div class="modal__header">
+
+                <div>
+                    <span class="eyebrow">
+                        Comparación
+                    </span>
+
+                    <h2 id="compare-modal-title">
+                        Comparar productos
+                    </h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="close-compare-modal-button"
+                    data-compare-action="close"
+                    class="modal__close modal__close--static"
+                    aria-label="Cerrar comparación"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="compare-table-container"
+                class="compare-table-container"
+            >
+                <!-- Generado desde compare.js -->
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         MODAL DE COMPRA SIMULADA
+    =================================================== -->
+
+    <div
+        id="checkout-modal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="checkout-modal-title"
+        hidden
+    >
+
+        <div
+            class="modal__overlay"
+            data-close-modal="checkout"
+        ></div>
+
+
+        <div class="modal__content modal__content--small">
+
+            <button
+                type="button"
+                id="close-checkout-modal-button"
+                class="modal__close"
+                aria-label="Cerrar ventana"
+            >
+                ×
+            </button>
+
+            <div class="checkout-message">
+
+                <span
+                    class="checkout-message__icon"
+                    aria-hidden="true"
+                >
+                    🎓
+                </span>
+
+                <h2 id="checkout-modal-title">
+                    Compra simulada
+                </h2>
+
+                <p>
+                    Esta tienda fue creada como proyecto educativo.
+                    No se procesará ningún pago ni se enviará información.
+                </p>
+
+                <button
+                    type="button"
+                    id="accept-checkout-message-button"
+                    class="primary-button"
+                >
+                    Entendido
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         NOTIFICACIONES
+    =================================================== -->
+
+    <div
+        id="toast-container"
+        class="toast-container"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
+
+
+    <!-- ==================================================
+         BOTÓN VOLVER ARRIBA
+    =================================================== -->
+
+    <button
+        type="button"
+        id="back-to-top-button"
+        class="back-to-top-button"
+        aria-label="Volver al inicio"
+        title="Volver arriba"
+        hidden
+    >
+        ↑
+    </button>
+
+
+    <!-- ==================================================
+         JAVASCRIPT
+         El orden es importante.
+    =================================================== -->
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/compare.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+</html>
