@@ -1288,7 +1288,37 @@ function productMatchesFilters(product) {
         const searchableText =
             getSearchableProductText(product);
 
-        if (!searchableText.includes(search)) {
+        const searchTerms = search
+            .split(" ")
+            .filter(Boolean);
+
+        const searchableWords = searchableText
+            .split(/[^a-z0-9]+/)
+            .filter(Boolean);
+
+        const matchesSearch = searchTerms.every(term => {
+           /*
+            * Las búsquedas cortas, como LG, HP o G5,
+            * deben coincidir con una palabra completa.
+            *
+            * Esto evita que LG coincida accidentalmente
+            * con palabras como "pulgadas".
+            */
+            if (term.length <= 2) {
+                return searchableWords.includes(term);
+            }
+
+           /*
+            * Para términos más largos se permite
+            * una coincidencia parcial.
+            *
+            * Por ejemplo:
+            * "ultra" encuentra "UltraGear".
+            */
+            return searchableText.includes(term);
+        });
+
+        if (!matchesSearch) {
             return false;
         }
     }
@@ -1682,17 +1712,21 @@ function activateCategory(
 function updateActiveCategoryCards() {
     document
         .querySelectorAll(
-            ".category-card[data-category]"
+            ".category-card[data-category], " +
+            ".category-card[data-category-filter]"
         )
         .forEach(card => {
+            const cardCategory =
+                card.dataset.category ||
+                card.dataset.categoryFilter;
+
             card.classList.toggle(
                 "is-active",
-                card.dataset.category ===
+                cardCategory ===
                     LeNCHoTeCHState.filters.category
             );
         });
 }
-
 
 /**
  * Desplaza la pantalla hasta el catálogo.
@@ -2814,7 +2848,7 @@ function initializeDelegatedEvents() {
 
             const categoryElement =
                 event.target.closest(
-                    "[data-category]"
+                    "[data-category], [data-category-filter]"
                 );
 
             if (
@@ -2824,7 +2858,8 @@ function initializeDelegatedEvents() {
                 )
             ) {
                 const category =
-                    categoryElement.dataset.category;
+                    categoryElement.dataset.category ||
+                    categoryElement.dataset.categoryFilter;
 
                 const subcategory =
                     categoryElement.dataset.subcategory ||
