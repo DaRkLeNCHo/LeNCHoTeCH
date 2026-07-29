@@ -797,7 +797,6 @@ textarea:focus-visible {
     transition: transform var(--transition-fast);
 }
 
-.navigation-dropdown:hover .dropdown-arrow,
 .navigation-dropdown.is-open .dropdown-arrow {
     transform: rotate(180deg);
 }
@@ -854,7 +853,6 @@ textarea:focus-visible {
         transform var(--transition-fast);
 }
 
-.navigation-dropdown:hover .mega-menu,
 .navigation-dropdown.is-open .mega-menu {
     visibility: visible;
     opacity: 1;
@@ -1229,13 +1227,77 @@ textarea:focus-visible {
     display: none;
 }
 
+
 .active-filters {
+    display: flex;
     min-width: 0;
     flex: 1;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     color: var(--color-text-muted);
     font-size: 0.84rem;
 }
 
+.active-filters__title {
+    color: var(--color-text-soft);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.active-filters__list {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.active-filter-chip {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px 5px 11px;
+    color: var(--color-primary-dark);
+    background: var(--color-primary-soft);
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-pill);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    transition:
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.active-filter-chip:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.active-filter-chip:active {
+    transform: translateY(0);
+}
+
+.active-filter-chip__label {
+    overflow-wrap: anywhere;
+}
+
+.active-filter-chip__remove {
+    display: grid;
+    place-items: center;
+    width: 19px;
+    height: 19px;
+    color: var(--color-primary-dark);
+    background: var(--color-surface);
+    border-radius: 50%;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+}
 .sort-control {
     display: flex;
     align-items: center;

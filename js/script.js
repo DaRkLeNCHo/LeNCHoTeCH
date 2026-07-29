@@ -138,7 +138,7 @@ function cacheDOMElements() {
 
     DOM.categoriesDropdownButton = DOM.categoriesDropdown
         ? DOM.categoriesDropdown.querySelector(
-            ".navigation-link--button, [data-dropdown-toggle]"
+            ".navigation-dropdown__button, [data-dropdown-toggle]"
         )
         : null;
 
@@ -272,6 +272,10 @@ function cacheDOMElements() {
     DOM.currentYear = selectFirst(
         "#current-year",
         "[data-current-year]"
+    );
+
+    DOM.offersButton = selectFirst(
+        "#offers-navigation-button"
     );
 }
 
@@ -1531,46 +1535,102 @@ function clearAllFilters() {
 ========================================================= */
 
 /**
+ * Crea una etiqueta para eliminar un filtro activo.
+ *
+ * @param {string} type
+ * @param {string} value
+ * @param {string} label
+ * @returns {string}
+ */
+function createActiveFilterChip(
+    type,
+    value,
+    label
+) {
+    return `
+        <button
+            type="button"
+            class="active-filter-chip"
+            data-remove-filter="${escapeHTML(type)}"
+            data-filter-value="${escapeHTML(value)}"
+            aria-label="Eliminar filtro ${escapeHTML(label)}"
+            title="Eliminar filtro"
+        >
+            <span class="active-filter-chip__label">
+                ${escapeHTML(label)}
+            </span>
+
+            <span
+                class="active-filter-chip__remove"
+                aria-hidden="true"
+            >
+                ×
+            </span>
+        </button>
+    `;
+}
+
+
+/**
  * Genera el resumen de filtros activos.
  */
+
 function renderActiveFilters() {
     if (!DOM.activeFilters) {
         return;
     }
 
-    const filterLabels = [];
+    const filterChips = [];
 
     if (LeNCHoTeCHState.filters.search) {
-        filterLabels.push(
-            `Búsqueda: “${escapeHTML(
-                DOM.searchInput
-                    ? DOM.searchInput.value.trim()
-                    : LeNCHoTeCHState.filters.search
-            )}”`
+        const searchLabel = DOM.searchInput
+            ? DOM.searchInput.value.trim()
+            : LeNCHoTeCHState.filters.search;
+
+        filterChips.push(
+            createActiveFilterChip(
+                "search",
+                LeNCHoTeCHState.filters.search,
+                `Búsqueda: “${searchLabel}”`
+            )
         );
     }
 
     if (
         LeNCHoTeCHState.filters.category !== "all"
     ) {
-        filterLabels.push(
-            escapeHTML(
-                LeNCHoTeCHState.filters.category
+        filterChips.push(
+            createActiveFilterChip(
+                "category",
+                LeNCHoTeCHState.filters.category,
+                `Categoría: ${
+                    LeNCHoTeCHState.filters.category
+                }`
             )
         );
     }
 
-    filterLabels.push(
-        ...LeNCHoTeCHState.filters.subcategories.map(
-            escapeHTML
-        )
-    );
+    LeNCHoTeCHState.filters.subcategories
+        .forEach(subcategory => {
+            filterChips.push(
+                createActiveFilterChip(
+                    "subcategory",
+                    subcategory,
+                    subcategory
+                )
+            );
+        });
 
-    filterLabels.push(
-        ...LeNCHoTeCHState.filters.brands.map(
-            escapeHTML
-        )
-    );
+    LeNCHoTeCHState.filters.brands
+        .forEach(brand => {
+            filterChips.push(
+                createActiveFilterChip(
+                    "brand",
+                    brand,
+                    brand
+                )
+            );
+        });
 
     if (
         LeNCHoTeCHState.filters.availability !== "all"
@@ -1581,25 +1641,166 @@ function renderActiveFilters() {
             out: "Agotados"
         };
 
-        filterLabels.push(
-            availabilityLabels[
-                LeNCHoTeCHState.filters.availability
-            ]
+        const availability =
+            LeNCHoTeCHState.filters.availability;
+
+        filterChips.push(
+            createActiveFilterChip(
+                "availability",
+                availability,
+                availabilityLabels[availability]
+            )
         );
     }
 
-    if (filterLabels.length === 0) {
+    if (
+        DOM.priceRange &&
+        Number(LeNCHoTeCHState.filters.maxPrice) <
+        Number(DOM.priceRange.max)
+    ) {
+        filterChips.push(
+            createActiveFilterChip(
+                "price",
+                String(
+                    LeNCHoTeCHState.filters.maxPrice
+                ),
+                `Hasta ${formatProductPrice(
+                    LeNCHoTeCHState.filters.maxPrice
+                )}`
+            )
+        );
+    }
+
+    if (filterChips.length === 0) {
         DOM.activeFilters.innerHTML =
             "No hay filtros activos.";
+
         return;
     }
 
     DOM.activeFilters.innerHTML = `
-        <strong>Filtros activos:</strong>
-        ${filterLabels.join(" · ")}
+        <span class="active-filters__title">
+            Filtros activos:
+        </span>
+
+        <div class="active-filters__list">
+            ${filterChips.join("")}
+        </div>
     `;
 }
 
+/**
+ * Elimina solamente el filtro seleccionado.
+ *
+ * @param {string} filterType
+ * @param {string} filterValue
+ */
+function removeActiveFilter(
+    filterType,
+    filterValue
+) {
+    if (DOM.offersButton) {
+        DOM.offersButton.classList.remove("active");
+    }
+
+    if (filterType === "search") {
+        LeNCHoTeCHState.filters.search = "";
+
+        if (DOM.searchInput) {
+            DOM.searchInput.value = "";
+        }
+
+        if (DOM.searchSuggestions) {
+            DOM.searchSuggestions.hidden = true;
+        }
+    }
+
+    if (filterType === "category") {
+        LeNCHoTeCHState.filters.category = "all";
+
+        document
+            .querySelectorAll(
+                '[data-filter-type="category"]'
+            )
+            .forEach(input => {
+                input.checked =
+                    input.value === "all";
+            });
+
+        renderSubcategoryFilters();
+        updateActiveCategoryCards();
+    }
+
+    if (filterType === "subcategory") {
+        LeNCHoTeCHState.filters.subcategories =
+            LeNCHoTeCHState.filters.subcategories
+                .filter(
+                    subcategory =>
+                        subcategory !== filterValue
+                );
+
+        document
+            .querySelectorAll(
+                '[data-filter-type="subcategory"]'
+            )
+            .forEach(input => {
+                input.checked =
+                    LeNCHoTeCHState.filters
+                        .subcategories
+                        .includes(input.value);
+            });
+    }
+
+    if (filterType === "brand") {
+        LeNCHoTeCHState.filters.brands =
+            LeNCHoTeCHState.filters.brands
+                .filter(
+                    brand => brand !== filterValue
+                );
+
+        document
+            .querySelectorAll(
+                '[data-filter-type="brand"]'
+            )
+            .forEach(input => {
+                input.checked =
+                    LeNCHoTeCHState.filters.brands
+                        .includes(input.value);
+            });
+    }
+
+    if (filterType === "availability") {
+        LeNCHoTeCHState.filters.availability =
+            "all";
+
+        document
+            .querySelectorAll(
+                '[data-filter-type="availability"]'
+            )
+            .forEach(input => {
+                input.checked =
+                    input.value === "all";
+            });
+    }
+
+    if (filterType === "price") {
+        const maximumPrice = DOM.priceRange
+            ? Number(DOM.priceRange.max)
+            : Infinity;
+
+        LeNCHoTeCHState.filters.maxPrice =
+            maximumPrice;
+
+        if (DOM.priceRange) {
+            DOM.priceRange.value =
+                DOM.priceRange.max;
+
+            updatePriceRangeText();
+        }
+    }
+
+    applyProductFilters();
+}
 
 /* =========================================================
    10. EVENTOS DE FILTROS
@@ -1663,6 +1864,8 @@ function activateCategory(
     category,
     subcategory = null
 ) {
+    disableOffersMode();
+
     LeNCHoTeCHState.filters.category =
         category || "all";
 
@@ -1746,6 +1949,42 @@ function scrollToCatalog() {
     }
 }
 
+function showOffers() {
+    const offeredProducts =
+        LeNCHoTeCHState.products.filter(
+            product =>
+                Number(product.oldPrice) >
+                Number(product.price)
+        );
+
+    LeNCHoTeCHState.filteredProducts =
+        sortProducts(offeredProducts);
+
+    renderProducts(
+        LeNCHoTeCHState.filteredProducts
+    );
+
+    document
+        .querySelectorAll("[data-navigation]")
+        .forEach(link => {
+            link.classList.remove("active");
+        });
+
+    if (DOM.offersButton) {
+        DOM.offersButton.classList.add("active");
+    }
+
+    scrollToCatalog();
+    closeNavigationMenus();
+}
+
+function disableOffersMode() {
+    if (DOM.offersButton) {
+        DOM.offersButton.classList.remove("active");
+    }
+
+    applyProductFilters();
+}
 
 /* =========================================================
    11. VISTA RÁPIDA
@@ -2811,6 +3050,13 @@ function initializeDirectEvents() {
             scrollBackToTop
         );
     }
+    
+    if (DOM.offersButton) {
+        DOM.offersButton.addEventListener(
+            "click",
+            showOffers
+        );
+    }
 
     window.addEventListener(
         "scroll",
@@ -2829,6 +3075,19 @@ function initializeDirectEvents() {
             }
         }
     );
+
+    const acceptCheckoutButton = document.getElementById(
+        "accept-checkout-message-button"
+    );
+
+    if (acceptCheckoutButton) {
+        acceptCheckoutButton.addEventListener(
+            "click",
+            () => {
+                closeModal(DOM.checkoutModal);
+            }
+        );
+    }
 }
 
 
@@ -2839,6 +3098,57 @@ function initializeDelegatedEvents() {
     document.addEventListener(
         "click",
         event => {
+            const removeFilterButton =
+                event.target.closest(
+                    "[data-remove-filter]"
+                );
+
+            if (removeFilterButton) {
+                event.preventDefault();
+
+                removeActiveFilter(
+                    removeFilterButton.dataset
+                        .removeFilter,
+                    removeFilterButton.dataset
+                        .filterValue || ""
+                );
+
+                return;
+            }
+            const navigationLink = event.target.closest(
+                "[data-navigation]"
+            );
+
+            if (navigationLink) {
+                event.preventDefault();
+
+                disableOffersMode();
+
+                const destination =
+                    navigationLink.dataset.navigation;
+
+                document
+                    .querySelectorAll("[data-navigation]")
+                    .forEach(link => {
+                        link.classList.remove("active");
+                    });
+
+                navigationLink.classList.add("active");
+
+                if (destination === "home") {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }
+
+                if (destination === "products") {
+                    scrollToCatalog();
+                }
+
+                closeNavigationMenus();
+            }
+
             const actionElement =
                 event.target.closest("[data-action]");
 
@@ -2872,6 +3182,8 @@ function initializeDelegatedEvents() {
                         category,
                         subcategory
                     );
+
+                    closeNavigationMenus();
                 }
             }
 
