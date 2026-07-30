@@ -1923,10 +1923,28 @@ function updateActiveCategoryCards() {
                 card.dataset.category ||
                 card.dataset.categoryFilter;
 
+            const cardSubcategory =
+                card.dataset.subcategory ||
+                null;
+
+            const activeSubcategories =
+                LeNCHoTeCHState.filters.subcategories;
+
+            const categoryMatches =
+                cardCategory ===
+                LeNCHoTeCHState.filters.category;
+
+            const subcategoryMatches =
+                cardSubcategory
+                    ? activeSubcategories.includes(
+                        cardSubcategory
+                    )
+                    : activeSubcategories.length === 0;
+
             card.classList.toggle(
                 "is-active",
-                cardCategory ===
-                    LeNCHoTeCHState.filters.category
+                categoryMatches &&
+                subcategoryMatches
             );
         });
 }

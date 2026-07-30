@@ -785,7 +785,12 @@
                 >
 
                     <span class="feature-card__icon">
-                        ⚡
+                        <img
+                            src="images/logo/logo.webp"
+                            alt=""
+                            class="feature-card__logo"
+                            aria-hidden="true"
+                        >
                     </span>
 
                     <div>
@@ -897,126 +902,398 @@
                     class="category-grid"
                 >
 
+                    <!-- Displays -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Displays"
                     >
-                        <span class="category-card__icon">🖥️</span>
-                        <span class="category-card__name">Displays</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+                                    <path d="M8 20h8"></path>
+                                    <path d="M12 16v4"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                6 productos
+                            </span>
+
+                        </span>
+
+                        <span class="category-card__name">
+                            Displays
+                        </span>
+
                         <span class="category-card__description">
-                            IPS, VA, TN, OLED y más
+                            Monitores IPS, VA, OLED y pantallas táctiles.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Cables -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Cables"
                     >
-                        <span class="category-card__icon">🔌</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M6 3v6"></path>
+                                    <path d="M10 3v6"></path>
+                                    <path d="M4 9h8v2a4 4 0 0 1-4 4"></path>
+                                    <path d="M8 15v2a4 4 0 0 0 4 4h1"></path>
+                                    <path d="M17 15v6"></path>
+                                    <path d="M14 15h6"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                7 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Cables
                         </span>
+
                         <span class="category-card__description">
-                            Red, video, datos y conectores
+                            Ethernet, HDMI, USB, fibra óptica y adaptadores.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- RAM -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="RAM"
                     >
-                        <span class="category-card__icon">💾</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="3" y="6" width="18" height="10" rx="2"></rect>
+                                    <path d="M7 10h2"></path>
+                                    <path d="M11 10h2"></path>
+                                    <path d="M15 10h2"></path>
+                                    <path d="M6 16v2"></path>
+                                    <path d="M9 16v2"></path>
+                                    <path d="M15 16v2"></path>
+                                    <path d="M18 16v2"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                4 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             RAM
                         </span>
+
                         <span class="category-card__description">
-                            DIMM, SODIMM, ECC y Non-ECC
+                            Memoria DIMM, SODIMM, ECC y Non-ECC.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Storage -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Storage"
                     >
-                        <span class="category-card__icon">💽</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
+                                    <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path>
+                                    <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                7 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Storage
                         </span>
+
                         <span class="category-card__description">
-                            HDD, SSD, NVMe y almacenamiento removible
+                            HDD, SSD SATA, NVMe, USB y unidades ópticas.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Components -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Components"
                     >
-                        <span class="category-card__icon">🧩</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="7" y="7" width="10" height="10" rx="2"></rect>
+                                    <path d="M9 1v3"></path>
+                                    <path d="M15 1v3"></path>
+                                    <path d="M9 20v3"></path>
+                                    <path d="M15 20v3"></path>
+                                    <path d="M1 9h3"></path>
+                                    <path d="M1 15h3"></path>
+                                    <path d="M20 9h3"></path>
+                                    <path d="M20 15h3"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                4 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Components
                         </span>
+
                         <span class="category-card__description">
-                            Tarjetas, motherboards y cooling
+                            Motherboards, tarjetas gráficas, cooling y fuentes.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Power Supplies -->
                     <button
                         type="button"
                         class="category-card"
-                        data-category-filter="Power Supplies"
+                        data-category-filter="Components"
+                        data-subcategory="Power Supplies"
                     >
-                        <span class="category-card__icon">⚡</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                    <circle cx="9" cy="12" r="4"></circle>
+                                    <path d="M17 9v2"></path>
+                                    <path d="M16 15h2"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                1 producto
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Power Supplies
                         </span>
+
                         <span class="category-card__description">
-                            Fuentes modulares y certificadas
+                            Fuentes modulares y certificadas para PC.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Printers -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Printers"
                     >
-                        <span class="category-card__icon">🖨️</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M6 9V3h12v6"></path>
+                                    <rect x="6" y="14" width="12" height="7" rx="1"></rect>
+                                    <path d="M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M18 12h.01"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                3 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Printers
                         </span>
+
                         <span class="category-card__description">
-                            Láser, inkjet y multifuncionales
+                            Impresoras láser, inkjet y multifuncionales.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
 
+                    <!-- Maintenance -->
                     <button
                         type="button"
                         class="category-card"
                         data-category-filter="Maintenance"
                     >
-                        <span class="category-card__icon">🛠️</span>
+                        <span class="category-card__top">
+
+                            <span
+                                class="category-card__icon"
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M14.7 6.3a4 4 0 0 0-5-5L12 3.6 9.6 6 7.3 3.7a4 4 0 0 0 5 5l7 7a2 2 0 1 1-2.8 2.8l-7-7"></path>
+                                    <path d="M5 19l4-4"></path>
+                                </svg>
+                            </span>
+
+                            <span class="category-card__count">
+                                3 productos
+                            </span>
+
+                        </span>
+
                         <span class="category-card__name">
                             Maintenance
                         </span>
+
                         <span class="category-card__description">
-                            Tinta, tóner y mantenimiento
+                            Tinta, tóner y kits de mantenimiento.
+                        </span>
+
+                        <span class="category-card__action">
+                            Ver categoría
+                            <span aria-hidden="true">→</span>
                         </span>
                     </button>
 
                 </div>
-
-            </div>
 
         </section>
 
@@ -1594,7 +1871,7 @@
                 </p>
 
                 <p>
-                    No somos responsables. El slogan ya lo advirtió.
+                    Sí somos responsables. El slogan nunca mintió.
                 </p>
 
             </div>
