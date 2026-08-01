@@ -242,6 +242,39 @@
                     </span>
                 </button>
 
+                <button
+                    type="button"
+                    id="auth-button"
+                    class="icon-button icon-button--auth"
+                    aria-label="Iniciar sesión o crear una cuenta"
+                    title="Iniciar sesión"
+                    aria-haspopup="dialog"
+                >
+                    <span
+                        class="icon-button__icon"
+                        aria-hidden="true"
+                    >
+                        <svg
+                            class="icon-button__svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M4 21a8 8 0 0 1 16 0"></path>
+                        </svg>
+                    </span>
+
+                    <span
+                        id="auth-button-label"
+                        class="icon-button__label"
+                    >
+                        Iniciar sesión
+                    </span>
+                </button>
 
                 <button
                     type="button"
@@ -2000,6 +2033,675 @@
 
     </aside>
 
+    <!-- ==================================================
+         MODAL DE AUTENTICACIÓN
+    =================================================== -->
+
+    <div
+        id="auth-modal"
+        class="auth-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+        hidden
+    >
+
+        <div
+            id="auth-modal-overlay"
+            class="auth-modal__overlay"
+        ></div>
+
+
+        <section class="auth-modal__panel">
+
+            <button
+                type="button"
+                id="close-auth-modal-button"
+                class="auth-modal__close"
+                aria-label="Cerrar ventana de autenticación"
+                title="Cerrar"
+            >
+                ×
+            </button>
+
+
+            <div class="auth-modal__brand">
+
+                <img
+                    src="images/logo/logo.webp"
+                    alt=""
+                    class="auth-modal__logo"
+                    aria-hidden="true"
+                >
+
+                <div>
+                    <span class="auth-modal__brand-name">
+                        LeNCHoTeCH
+                    </span>
+
+                    <span class="auth-modal__brand-slogan">
+                        Todo lo que pase es mi culpa.
+                    </span>
+                </div>
+
+            </div>
+
+
+            <header class="auth-modal__header">
+
+                <span class="eyebrow">
+                    Tu cuenta LeNCHoTeCH
+                </span>
+
+                <h2 id="auth-modal-title">
+                    Bienvenido
+                </h2>
+
+                <p id="auth-modal-description">
+                    Inicia sesión o crea una cuenta para guardar tu actividad.
+                </p>
+
+            </header>
+
+
+            <div
+                class="auth-tabs"
+                role="tablist"
+                aria-label="Opciones de autenticación"
+            >
+
+                <button
+                    type="button"
+                    id="login-tab-button"
+                    class="auth-tabs__button is-active"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="login-panel"
+                    data-auth-tab="login"
+                >
+                    Iniciar sesión
+                </button>
+
+                <button
+                    type="button"
+                    id="register-tab-button"
+                    class="auth-tabs__button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="register-panel"
+                    data-auth-tab="register"
+                >
+                    Crear cuenta
+                </button>
+
+            </div>
+
+
+            <!-- Inicio de sesión -->
+            <div
+                id="login-panel"
+                class="auth-panel is-active"
+                role="tabpanel"
+                aria-labelledby="login-tab-button"
+                data-auth-panel="login"
+            >
+
+                <form
+                    id="login-form"
+                    class="auth-form"
+                    novalidate
+                >
+
+                    <div class="auth-form__group">
+
+                        <label for="login-email">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            id="login-email"
+                            name="email"
+                            autocomplete="email"
+                            placeholder="nombre@correo.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="auth-form__group">
+
+                        <div class="auth-form__label-row">
+
+                            <label for="login-password">
+                                Contraseña
+                            </label>
+
+                            <button
+                                type="button"
+                                id="forgot-password-button"
+                                class="auth-form__text-button"
+                            >
+                                ¿La olvidaste?
+                            </button>
+
+                        </div>
+
+                        <div class="auth-password-field">
+
+                            <input
+                                type="password"
+                                id="login-password"
+                                name="password"
+                                autocomplete="current-password"
+                                placeholder="Escribe tu contraseña"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="auth-password-field__toggle"
+                                data-password-toggle="login-password"
+                                aria-label="Mostrar contraseña"
+                                title="Mostrar contraseña"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <p
+                        id="login-message"
+                        class="auth-form__message"
+                        role="alert"
+                        hidden
+                    ></p>
+
+
+                    <button
+                        type="submit"
+                        id="login-submit-button"
+                        class="primary-button auth-form__submit"
+                    >
+                        Iniciar sesión
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- Crear cuenta -->
+            <div
+                id="register-panel"
+                class="auth-panel"
+                role="tabpanel"
+                aria-labelledby="register-tab-button"
+                data-auth-panel="register"
+                hidden
+            >
+
+                <form
+                    id="register-form"
+                    class="auth-form"
+                    novalidate
+                >
+
+                    <div class="auth-form__group">
+
+                        <label for="register-name">
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            id="register-name"
+                            name="name"
+                            autocomplete="name"
+                            placeholder="Tu nombre"
+                            minlength="2"
+                            maxlength="50"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="auth-form__group">
+
+                        <label for="register-email">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            id="register-email"
+                            name="email"
+                            autocomplete="email"
+                            placeholder="nombre@correo.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="auth-form__group">
+
+                        <label for="register-password">
+                            Contraseña
+                        </label>
+
+                        <div class="auth-password-field">
+
+                            <input
+                                type="password"
+                                id="register-password"
+                                name="password"
+                                autocomplete="new-password"
+                                placeholder="Mínimo 6 caracteres"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="auth-password-field__toggle"
+                                data-password-toggle="register-password"
+                                aria-label="Mostrar contraseña"
+                                title="Mostrar contraseña"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="auth-form__group">
+
+                        <label for="register-password-confirmation">
+                            Confirmar contraseña
+                        </label>
+
+                        <div class="auth-password-field">
+
+                            <input
+                                type="password"
+                                id="register-password-confirmation"
+                                name="passwordConfirmation"
+                                autocomplete="new-password"
+                                placeholder="Repite tu contraseña"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="auth-password-field__toggle"
+                                data-password-toggle="register-password-confirmation"
+                                aria-label="Mostrar contraseña"
+                                title="Mostrar contraseña"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <label class="auth-form__checkbox">
+
+                        <input
+                            type="checkbox"
+                            id="register-terms"
+                            name="terms"
+                            required
+                        >
+
+                        <span>
+                            Acepto que esta cuenta se utilice en esta demostración educativa.
+                        </span>
+
+                    </label>
+
+
+                    <p
+                        id="register-message"
+                        class="auth-form__message"
+                        role="alert"
+                        hidden
+                    ></p>
+
+
+                    <button
+                        type="submit"
+                        id="register-submit-button"
+                        class="primary-button auth-form__submit"
+                    >
+                        Crear cuenta
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <footer class="auth-modal__footer">
+
+                <p>
+                    Tus contraseñas son administradas de forma segura por Firebase Authentication.
+                </p>
+
+            </footer>
+
+        </section>
+
+    </div>
+
+    <!-- ==================================================
+        MENÚ DE CUENTA
+    =================================================== -->
+
+    <div
+        id="account-menu"
+        class="account-menu"
+        hidden
+    >
+
+        <div
+            id="account-menu-overlay"
+            class="account-menu__overlay"
+        ></div>
+
+        <section class="account-menu__panel">
+
+            <button
+                type="button"
+                id="close-account-menu-button"
+                class="account-menu__close"
+                aria-label="Cerrar menú de cuenta"
+            >
+                ×
+            </button>
+
+            <div class="account-menu__header">
+
+                <div class="account-menu__avatar">
+                    <span id="account-avatar-letter">
+                        U
+                    </span>
+                </div>
+
+                <div>
+                    <strong id="account-user-name">
+                        Usuario
+                    </strong>
+
+                    <span id="account-user-email">
+                        correo@ejemplo.com
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="account-menu__status">
+
+                <span>Estado del correo</span>
+
+                <strong id="account-email-status">
+                    Sin verificar
+                </strong>
+
+            </div>
+
+            <button
+                type="button"
+                id="resend-verification-button"
+                class="secondary-button account-menu__button"
+            >
+                Reenviar verificación
+            </button>
+
+            <button
+                type="button"
+                id="admin-panel-button"
+                class="secondary-button account-menu__button"
+                hidden
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+
+                <span>
+                     Administración
+                </span>
+            </button>
+
+            <button
+                type="button"
+                id="logout-button"
+                class="account-menu__logout"
+            >
+                Cerrar sesión
+            </button>
+
+        </section>
+
+    </div>
+
+    <!-- ==================================================
+     PANEL DE ADMINISTRACIÓN
+    =================================================== -->
+
+    <div
+        id="admin-modal"
+        class="admin-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="admin-modal-title"
+        hidden
+    >
+
+        <div
+            id="admin-modal-overlay"
+            class="admin-modal__overlay"
+        ></div>
+
+
+        <section class="admin-modal__panel">
+
+            <header class="admin-modal__header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        Acceso administrativo
+                    </span>
+
+                    <h2 id="admin-modal-title">
+                        Administración
+                    </h2>
+
+                    <p>
+                        Resumen de usuarios registrados en LeNCHoTeCH.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="close-admin-modal-button"
+                    class="admin-modal__close"
+                    aria-label="Cerrar panel de administración"
+                    title="Cerrar"
+                >
+                    ×
+                </button>
+
+            </header>
+
+
+            <div class="admin-stats">
+
+                <article class="admin-stat-card">
+
+                    <span class="admin-stat-card__label">
+                        Usuarios registrados
+                    </span>
+
+                    <strong
+                        id="admin-total-users"
+                        class="admin-stat-card__value"
+                    >
+                        0
+                    </strong>
+
+                </article>
+
+
+                <article class="admin-stat-card">
+
+                    <span class="admin-stat-card__label">
+                        Correos verificados
+                    </span>
+
+                    <strong
+                        id="admin-verified-users"
+                        class="admin-stat-card__value"
+                    >
+                        0
+                    </strong>
+
+                </article>
+
+
+                <article class="admin-stat-card">
+
+                    <span class="admin-stat-card__label">
+                        Sin verificar
+                    </span>
+
+                    <strong
+                        id="admin-unverified-users"
+                        class="admin-stat-card__value"
+                    >
+                        0
+                    </strong>
+
+                </article>
+
+
+                <article class="admin-stat-card">
+
+                    <span class="admin-stat-card__label">
+                        Inicios de sesión
+                    </span>
+
+                    <strong
+                        id="admin-total-logins"
+                        class="admin-stat-card__value"
+                    >
+                        0
+                    </strong>
+
+                </article>
+
+            </div>
+
+
+            <section class="admin-users">
+
+                <div class="admin-users__heading">
+
+                    <div>
+                        <h3>Usuarios</h3>
+
+                        <p>
+                            Cuentas registradas mediante Firebase Authentication.
+                        </p>
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="refresh-admin-users-button"
+                        class="secondary-button"
+                    >
+                        Actualizar
+                    </button>
+
+                </div>
+
+
+                <p
+                    id="admin-users-message"
+                    class="admin-users__message"
+                    role="status"
+                >
+                    Abre el panel para cargar los usuarios.
+                </p>
+
+
+                <div
+                    id="admin-users-list"
+                    class="admin-users__list"
+                ></div>
+
+            </section>
+
+        </section>
+
+    </div>
 
     <!-- ==================================================
          MODAL DE VISTA RÁPIDA
@@ -2258,6 +2960,11 @@
     <script src="js/favorites.js"></script>
     <script src="js/compare.js"></script>
     <script src="js/script.js"></script>
+
+    <script
+        type="module"
+        src="js/auth.js"
+></script>
 
 </body>
 </html>
