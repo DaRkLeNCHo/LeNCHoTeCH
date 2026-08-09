@@ -94,6 +94,65 @@ function escapeCompareHTML(value) {
         .replaceAll("'", "&#039;");
 }
 
+/**
+ * Obtiene una traducción para el comparador.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @returns {string}
+ */
+function getCompareTranslation(
+    key,
+    fallback
+) {
+    const language =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
+    const translatedText =
+        window.LENCHOTECH_I18N
+            ?.getTranslation?.(
+                language,
+                key
+            );
+
+    return translatedText || fallback;
+}
+
+
+/**
+ * Obtiene una traducción y reemplaza
+ * variables como {name}, {count} o {position}.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @param {Record<string, string|number>} variables
+ * @returns {string}
+ */
+function getCompareTranslationWithVariables(
+    key,
+    fallback,
+    variables = {}
+) {
+    let translatedText =
+        getCompareTranslation(
+            key,
+            fallback
+        );
+
+    Object.entries(variables).forEach(
+        ([variableName, variableValue]) => {
+            translatedText =
+                translatedText.replaceAll(
+                    `{${variableName}}`,
+                    String(variableValue)
+                );
+        }
+    );
+
+    return translatedText;
+}
 
 /**
  * Formatea precios.
@@ -435,8 +494,14 @@ function addProductToCompare(
 
     if (!product) {
         showCompareToast(
-            "Producto no encontrado",
-            "No fue posible añadir el producto a la comparación.",
+            getCompareTranslation(
+                "compare.productNotFoundTitle",
+                "Producto no encontrado"
+            ),
+            getCompareTranslation(
+                "compare.productNotFoundMessage",
+                "No fue posible añadir el producto a la comparación."
+            ),
             "danger"
         );
 
@@ -452,10 +517,22 @@ function addProductToCompare(
         COMPARE_MAX_PRODUCTS
     ) {
         showCompareToast(
-            "Límite alcanzado",
-            `Solo puedes comparar hasta ${COMPARE_MAX_PRODUCTS} productos a la vez.`,
+            getCompareTranslation(
+                "compare.limitReachedTitle",
+                "Límite alcanzado"
+            ),
+            getCompareTranslationWithVariables(
+                "compare.limitReachedMessage",
+                "Solo puedes comparar hasta {count} productos a la vez.",
+                {
+                    count:
+                        COMPARE_MAX_PRODUCTS
+                }
+            ),
             "warning"
         );
+
+        synchronizeCompareButtons();
 
         return false;
     }
@@ -470,8 +547,22 @@ function addProductToCompare(
 
     if (showMessage) {
         showCompareToast(
-            "Añadido a comparación",
-            `${product.name} está listo para comparar.`,
+            getCompareTranslation(
+                "compare.addedTitle",
+                "Añadido a comparación"
+            ),
+            getCompareTranslationWithVariables(
+                "compare.addedMessage",
+                "{name} está listo para comparar.",
+                {
+                    name:
+                        getCompareApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            ),
             "success"
         );
     }
@@ -527,10 +618,27 @@ function removeProductFromCompare(
 
     if (showMessage) {
         showCompareToast(
-            "Eliminado de comparación",
+            getCompareTranslation(
+                "compare.removedTitle",
+                "Eliminado de comparación"
+            ),
             product
-                ? `${product.name} fue retirado.`
-                : "El producto fue retirado.",
+                ? getCompareTranslationWithVariables(
+                    "compare.removedMessage",
+                    "{name} fue retirado.",
+                    {
+                        name:
+                            getCompareApp()
+                                .getTranslatedProductName?.(
+                                    product
+                                ) ||
+                            product.name
+                    }
+                )
+                : getCompareTranslation(
+                    "compare.removedGenericMessage",
+                    "El producto fue retirado."
+                ),
             "default"
         );
     }
@@ -561,8 +669,14 @@ function clearCompareProducts(
 
     if (showMessage) {
         showCompareToast(
-            "Comparación eliminada",
-            "La lista de comparación quedó vacía.",
+            getCompareTranslation(
+                "compare.clearedTitle",
+                "Comparación eliminada"
+            ),
+            getCompareTranslation(
+                "compare.clearedMessage",
+                "La lista de comparación quedó vacía."
+            ),
             "default"
         );
     }
@@ -610,6 +724,17 @@ function toggleCompareProduct(productId) {
  * @returns {string}
  */
 function createCompareBarItemHTML(product) {
+    const app =
+        getCompareApp();
+
+    const visibleProductName =
+        typeof app.getTranslatedProductName ===
+        "function"
+            ? app.getTranslatedProductName(
+                product
+            )
+            : product.name;
+
     return `
         <article
             class="compare-bar__item"
@@ -619,8 +744,12 @@ function createCompareBarItemHTML(product) {
                 <img
                     class="compare-bar__image"
                     src="${escapeCompareHTML(product.image)}"
-                    alt="${escapeCompareHTML(product.name)}"
-                    data-compare-product-name="${escapeCompareHTML(product.name)}"
+                    alt="${escapeCompareHTML(
+                        visibleProductName
+                    )}"
+                    data-compare-product-name="${escapeCompareHTML(
+                        visibleProductName
+                    )}"
                     loading="lazy"
                 >
             </div>
@@ -631,7 +760,9 @@ function createCompareBarItemHTML(product) {
                 </span>
 
                 <strong class="compare-bar__product-name">
-                    ${escapeCompareHTML(product.name)}
+                    ${escapeCompareHTML(
+                        visibleProductName
+                    )}
                 </strong>
             </div>
 
@@ -640,42 +771,27 @@ function createCompareBarItemHTML(product) {
                 class="compare-bar__remove"
                 data-compare-action="remove"
                 data-product-id="${product.id}"
-                aria-label="Eliminar ${escapeCompareHTML(product.name)} de la comparación"
-                title="Eliminar de la comparación"
+                aria-label="${escapeCompareHTML(
+                    getCompareTranslationWithVariables(
+                        "compare.removeProductLabel",
+                        "Eliminar {name} de la comparación",
+                        {
+                            name: visibleProductName
+                        }
+                    )
+                )}"
+                title="${escapeCompareHTML(
+                    getCompareTranslation(
+                        "compare.removeFromComparison",
+                        "Eliminar de la comparación"
+                    )
+                )}"
             >
                 ×
             </button>
         </article>
     `;
 }
-
-
-/**
- * Genera un espacio vacío en la barra.
- *
- * @param {number} position
- * @returns {string}
- */
-function createEmptyCompareSlotHTML(position) {
-    return `
-        <div
-            class="compare-bar__item compare-bar__item--empty"
-            aria-label="Espacio ${position} disponible"
-        >
-            <span
-                class="compare-bar__empty-icon"
-                aria-hidden="true"
-            >
-                +
-            </span>
-
-            <span>
-                Añadir producto
-            </span>
-        </div>
-    `;
-}
-
 
 /* =========================================================
    10. RENDERIZAR LA BARRA
@@ -719,27 +835,6 @@ function renderCompareBar() {
                 )
                 .join("");
 
-        const emptySlotCount =
-            Math.max(
-                0,
-                COMPARE_MAX_PRODUCTS -
-                    products.length
-            );
-
-        const emptyItems =
-            Array.from(
-                {
-                    length:
-                        emptySlotCount
-                },
-                (_, index) =>
-                    createEmptyCompareSlotHTML(
-                        products.length +
-                            index +
-                            1
-                    )
-            ).join("");
-
         itemsContainer.innerHTML =
             productItems;
     }
@@ -768,11 +863,18 @@ function updateCompareCounter() {
 
     countElement.setAttribute(
         "aria-label",
-        `${count} ${
-            count === 1
-                ? "producto seleccionado"
-                : "productos seleccionados"
-        }`
+        count === 1
+            ? getCompareTranslation(
+                "compare.counterSingle",
+                "1 producto seleccionado"
+            )
+            : getCompareTranslationWithVariables(
+                "compare.counterPlural",
+                "{count} productos seleccionados",
+                {
+                    count
+                }
+            )
     );
 }
 
@@ -805,10 +907,16 @@ function updateOpenCompareButton() {
 
     if (count < 2) {
         button.title =
-            "Selecciona al menos dos productos";
+            getCompareTranslation(
+                "compare.selectTwoTitle",
+                "Selecciona al menos dos productos"
+            );
     } else {
         button.title =
-            "Abrir comparación";
+            getCompareTranslation(
+                "compare.openComparison",
+                "Abrir comparación"
+            );
     }
 }
 
@@ -871,7 +979,10 @@ function getProductSpecification(
         typeof specifications !==
             "object"
     ) {
-        return "No especificado";
+        return getCompareTranslation(
+            "compare.notSpecified",
+            "No especificado"
+        );
     }
 
     const value =
@@ -884,7 +995,10 @@ function getProductSpecification(
         value === null ||
         value === ""
     ) {
-        return "No especificado";
+        return getCompareTranslation(
+            "compare.notSpecified",
+            "No especificado"
+        );
     }
 
     if (Array.isArray(value)) {
@@ -892,7 +1006,15 @@ function getProductSpecification(
     }
 
     if (typeof value === "boolean") {
-        return value ? "Sí" : "No";
+        return value
+            ? getCompareTranslation(
+                "compare.yes",
+                "Sí"
+            )
+            : getCompareTranslation(
+                "compare.no",
+                "No"
+            );
     }
 
     return String(value);
@@ -914,12 +1036,30 @@ function createCompareTableHeader(products) {
         <thead>
             <tr>
                 <th scope="col">
-                    Característica
+                    ${escapeCompareHTML(
+                        getCompareTranslation(
+                            "compare.feature",
+                            "Característica"
+                        )
+                    )}
                 </th>
 
                 ${products
-                    .map(
-                        product => `
+                    .map(product => {
+                        const app =
+                            getCompareApp();
+
+                        const visibleProductName =
+                            typeof app
+                                .getTranslatedProductName ===
+                                "function"
+                                ? app
+                                    .getTranslatedProductName(
+                                        product
+                                    )
+                                : product.name;
+
+                        return `
                             <th
                                 scope="col"
                                 class="compare-table__product-column"
@@ -929,7 +1069,16 @@ function createCompareTableHeader(products) {
                                     class="compare-table__remove-product"
                                     data-compare-action="remove"
                                     data-product-id="${product.id}"
-                                    aria-label="Eliminar ${escapeCompareHTML(product.name)}"
+                                    aria-label="${escapeCompareHTML(
+                                        getCompareTranslationWithVariables(
+                                            "compare.removeProductLabel",
+                                            "Eliminar {name} de la comparación",
+                                            {
+                                                name:
+                                                    visibleProductName
+                                            }
+                                        )
+                                    )}"
                                 >
                                     ×
                                 </button>
@@ -937,23 +1086,33 @@ function createCompareTableHeader(products) {
                                 <div class="compare-table__product-image-wrapper">
                                     <img
                                         class="compare-table__product-image"
-                                        src="${escapeCompareHTML(product.image)}"
-                                        alt="${escapeCompareHTML(product.name)}"
-                                        data-compare-product-name="${escapeCompareHTML(product.name)}"
+                                        src="${escapeCompareHTML(
+                                            product.image
+                                        )}"
+                                        alt="${escapeCompareHTML(
+                                            visibleProductName
+                                        )}"
+                                        data-compare-product-name="${escapeCompareHTML(
+                                            visibleProductName
+                                        )}"
                                         loading="lazy"
                                     >
                                 </div>
 
                                 <span class="compare-table__brand">
-                                    ${escapeCompareHTML(product.brand)}
+                                    ${escapeCompareHTML(
+                                        product.brand
+                                    )}
                                 </span>
 
                                 <strong class="compare-table__product-name">
-                                    ${escapeCompareHTML(product.name)}
+                                    ${escapeCompareHTML(
+                                        visibleProductName
+                                    )}
                                 </strong>
                             </th>
-                        `
-                    )
+                        `;
+                    })
                     .join("")}
             </tr>
         </thead>
@@ -968,41 +1127,102 @@ function createCompareTableHeader(products) {
  * @returns {string}
  */
 function createComparePrimaryRows(products) {
+    const app =
+        getCompareApp();
+
     const rows = [
         {
-            label: "Precio",
+            label:
+                getCompareTranslation(
+                    "compare.price",
+                    "Precio"
+                ),
+
             getValue: product =>
                 formatComparePrice(
                     product.price
                 )
         },
         {
-            label: "Categoría",
+            label:
+                getCompareTranslation(
+                    "compare.category",
+                    "Categoría"
+                ),
+
             getValue: product =>
-                product.category ||
-                "No especificada"
+                product.category
+                    ? app
+                        .getTranslatedCategoryName(
+                            product.category
+                        )
+                    : getCompareTranslation(
+                        "compare.notSpecifiedFeminine",
+                        "No especificada"
+                    )
         },
         {
-            label: "Subcategoría",
+            label:
+                getCompareTranslation(
+                    "compare.subcategory",
+                    "Subcategoría"
+                ),
+
             getValue: product =>
-                product.subcategory ||
-                "No especificada"
+                product.subcategory
+                    ? app
+                        .getTranslatedSubcategoryName(
+                            product.subcategory
+                        )
+                    : getCompareTranslation(
+                        "compare.notSpecifiedFeminine",
+                        "No especificada"
+                    )
         },
         {
-            label: "Disponibilidad",
+            label:
+                getCompareTranslation(
+                    "compare.availability",
+                    "Disponibilidad"
+                ),
+
             getValue: product =>
                 Number(product.stock) > 0
-                    ? `${product.stock} disponibles`
-                    : "Agotado"
+                    ? getCompareTranslationWithVariables(
+                        "compare.availableStock",
+                        "{stock} disponibles",
+                        {
+                            stock: product.stock
+                        }
+                    )
+                    : getCompareTranslation(
+                        "compare.soldOut",
+                        "Agotado"
+                    )
         },
         {
-            label: "Calificación",
+            label:
+                getCompareTranslation(
+                    "compare.rating",
+                    "Calificación"
+                ),
+
             getValue: product =>
                 Number.isFinite(
                     Number(product.rating)
                 )
-                    ? `${product.rating} de 5`
-                    : "Sin calificación"
+                    ? getCompareTranslationWithVariables(
+                        "compare.ratingValue",
+                        "{rating} de 5",
+                        {
+                            rating:
+                                product.rating
+                        }
+                    )
+                    : getCompareTranslation(
+                        "compare.noRating",
+                        "Sin calificación"
+                    )
         }
     ];
 
@@ -1055,11 +1275,21 @@ function createCompareSpecificationRows(
         return `
             <tr>
                 <th scope="row">
-                    Especificaciones
+                    ${escapeCompareHTML(
+                        getCompareTranslation(
+                            "compare.specifications",
+                            "Especificaciones"
+                        )
+                    )}
                 </th>
 
                 <td colspan="${products.length}">
-                    No hay especificaciones adicionales disponibles.
+                    ${escapeCompareHTML(
+                        getCompareTranslation(
+                            "compare.noAdditionalSpecifications",
+                            "No hay especificaciones adicionales disponibles."
+                        )
+                    )}
                 </td>
             </tr>
         `;
@@ -1071,7 +1301,10 @@ function createCompareSpecificationRows(
                 <tr>
                     <th scope="row">
                         ${escapeCompareHTML(
-                            specificationName
+                            getCompareApp()
+                                .getTranslatedSpecificationName(
+                                    specificationName
+                                )
                         )}
                     </th>
 
@@ -1080,10 +1313,13 @@ function createCompareSpecificationRows(
                             product => `
                                 <td>
                                     ${escapeCompareHTML(
-                                        getProductSpecification(
-                                            product,
-                                            specificationName
-                                        )
+                                        getCompareApp()
+                                            .getTranslatedSpecificationValue(
+                                                getProductSpecification(
+                                                    product,
+                                                    specificationName
+                                                )
+                                            )
                                     )}
                                 </td>
                             `
@@ -1141,11 +1377,21 @@ function createCompareInsufficientHTML() {
             </span>
 
             <h3>
-                Selecciona al menos dos productos
+                ${escapeCompareHTML(
+                    getCompareTranslation(
+                        "compare.insufficientTitle",
+                        "Selecciona al menos dos productos"
+                    )
+                )}
             </h3>
 
             <p>
-                Añade productos desde el catálogo para comparar sus precios y características.
+                ${escapeCompareHTML(
+                    getCompareTranslation(
+                        "compare.insufficientDescription",
+                        "Añade productos desde el catálogo para comparar sus precios y características."
+                    )
+                )}
             </p>
 
             <button
@@ -1153,7 +1399,12 @@ function createCompareInsufficientHTML() {
                 class="primary-button"
                 data-compare-action="continue-shopping"
             >
-                Explorar productos
+                ${escapeCompareHTML(
+                    getCompareTranslation(
+                        "compare.exploreProducts",
+                        "Explorar productos"
+                    )
+                )}
             </button>
         </div>
     `;
@@ -1199,8 +1450,14 @@ function openCompareModal() {
 
     if (products.length < 2) {
         showCompareToast(
-            "Comparación incompleta",
-            "Selecciona al menos dos productos para comparar.",
+            getCompareTranslation(
+                "compare.incompleteTitle",
+                "Comparación incompleta"
+            ),
+            getCompareTranslation(
+                "compare.incompleteMessage",
+                "Selecciona al menos dos productos para comparar."
+            ),
             "warning"
         );
 
@@ -1212,8 +1469,14 @@ function openCompareModal() {
 
     if (!modal) {
         showCompareToast(
-            "Modal no disponible",
-            "No se encontró el área de comparación.",
+            getCompareTranslation(
+                "compare.modalUnavailableTitle",
+                "Modal no disponible"
+            ),
+            getCompareTranslation(
+                "compare.modalUnavailableMessage",
+                "No se encontró el área de comparación."
+            ),
             "danger"
         );
 
@@ -1351,6 +1614,14 @@ function updateCompareButtonState(
         button.type === "checkbox"
     ) {
         button.checked = active;
+
+        const comparisonIsFull =
+            getCompareCount() >=
+            COMPARE_MAX_PRODUCTS;
+
+        button.disabled =
+            comparisonIsFull &&
+            !active;
     }
 
     const productId =
@@ -1364,33 +1635,100 @@ function updateCompareButtonState(
             : null;
 
     const productName =
-        product?.name ||
-        "este producto";
+        product
+            ? (
+                getCompareApp()
+                    .getTranslatedProductName?.(
+                        product
+                    ) ||
+                product.name
+            )
+            : getCompareTranslation(
+                "compare.genericProduct",
+                "este producto"
+            );
+
+    const hasComparedProducts =
+        getCompareCount() > 0;
+
+    let visibleText;
+    let accessibleLabel;
+    let titleText;
+
+    if (active) {
+        visibleText =
+            getCompareTranslation(
+                "compare.removeAction",
+                "Eliminar de comparación"
+            );
+
+        accessibleLabel =
+            getCompareTranslationWithVariables(
+                "compare.removeProductLabel",
+                "Eliminar {name} de la comparación",
+                {
+                    name: productName
+                }
+            );
+
+        titleText =
+            visibleText;
+    } else if (hasComparedProducts) {
+        visibleText =
+            getCompareTranslation(
+                "compare.addAction",
+                "Añadir a comparación"
+            );
+ 
+        accessibleLabel =
+            getCompareTranslationWithVariables(
+                "compare.addProductLabel",
+                "Añadir {name} a la comparación",
+                {
+                    name: productName
+                }
+            );
+
+        titleText =
+            visibleText;
+    } else {
+        visibleText =
+            getCompareTranslation(
+                "compare.idleAction",
+                "Comparar"
+            );
+
+        accessibleLabel =
+            getCompareTranslationWithVariables(
+                "compare.idleProductLabel",
+                "Comparar {name}",
+                {
+                    name: productName
+                }
+            );
+
+        titleText =
+            visibleText;
+    }
 
     button.setAttribute(
         "aria-label",
-        active
-            ? `Eliminar ${productName} de la comparación`
-            : `Añadir ${productName} a la comparación`
+        accessibleLabel
     );
 
     button.setAttribute(
         "title",
-        active
-            ? "Eliminar de comparación"
-            : "Comparar producto"
+        titleText
     );
 
     const text =
-        button.querySelector(
-            "[data-compare-text]"
-        );
+        button
+            .closest(".product-card__compare")
+            ?.querySelector("span");
 
     if (text) {
         text.textContent =
-            active
-                ? "Comparando"
-                : "Comparar";
+            visibleText;
     }
 }
 
@@ -1720,12 +2058,23 @@ function initializeCompareImageFallbacks() {
                 image.dataset
                     .compareProductName ||
                 image.alt ||
-                "Producto";
+                getCompareTranslation(
+                    "compare.genericProductName",
+                    "Producto"
+                );
 
             wrapper.innerHTML = `
                 <div
                     class="product-image-placeholder"
-                    aria-label="Imagen no disponible para ${escapeCompareHTML(productName)}"
+                    aria-label="${escapeCompareHTML(
+                        getCompareTranslationWithVariables(
+                            "compare.imageUnavailableLabel",
+                            "Imagen no disponible para {name}",
+                            {
+                                name: productName
+                            }
+                        )
+                    )}"
                 >
                     <span
                         class="product-image-placeholder__icon"
@@ -1813,6 +2162,12 @@ window.LENCHOTECH_COMPARE = {
         synchronizeCompareButtons
 };
 
+document.addEventListener(
+    "lenchotech:language-changed",
+    () => {
+        renderCompareInterface();
+    }
+);
 
 /* =========================================================
    23. EJECUCIÓN

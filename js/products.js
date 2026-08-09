@@ -230,7 +230,7 @@ const products = [
             "Conector": "RJ45",
             "Velocidad": "Hasta 1 Gbps",
             "Blindaje": "UTP",
-            "Color": "Negro"
+            "Color": "Azul"
         }
     },
 

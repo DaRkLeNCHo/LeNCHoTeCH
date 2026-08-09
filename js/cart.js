@@ -5,6 +5,19 @@
 
 "use strict";
 
+import {
+    db
+} from "./firebase-config.js";
+
+import {
+    collection,
+    doc,
+    getDocs,
+    setDoc,
+    deleteDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
+
 
 /* =========================================================
    1. CONFIGURACIÓN
@@ -16,6 +29,7 @@ const LeNCHoTeCHCartState = {
     items: []
 };
 
+let authenticatedUser = null;
 
 /* =========================================================
    2. UTILIDADES
@@ -108,6 +122,65 @@ function escapeCartHTML(value) {
         .replaceAll("'", "&#039;");
 }
 
+/**
+ * Obtiene una traducción para el carrito.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @returns {string}
+ */
+function getCartTranslation(
+    key,
+    fallback
+) {
+    const language =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
+    const translatedText =
+        window.LENCHOTECH_I18N
+            ?.getTranslation?.(
+                language,
+                key
+            );
+
+    return translatedText || fallback;
+}
+
+/**
+ * Obtiene una traducción y reemplaza
+ * variables como {name}, {price} o {stock}.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @param {Record<string, string|number>} variables
+ * @returns {string}
+ */
+function getCartTranslationWithVariables(
+    key,
+    fallback,
+    variables = {}
+) {
+    let translatedText =
+        getCartTranslation(
+            key,
+            fallback
+        );
+
+    Object.entries(variables).forEach(
+        ([variableName, variableValue]) => {
+            translatedText =
+                translatedText.replaceAll(
+                    `{${variableName}}`,
+                    String(variableValue)
+                );
+        }
+    );
+
+    return translatedText;
+}
+
 
 /**
  * Muestra una notificación.
@@ -196,7 +269,80 @@ function saveCart() {
 /**
  * Carga el carrito guardado.
  */
-function loadCart() {
+async function loadCart() {
+
+    /*
+        USUARIO CON SESIÓN:
+        cargar su carrito privado desde Firestore.
+    */
+
+    if (authenticatedUser) {
+        try {
+            const cartSnapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "users",
+                        authenticatedUser.uid,
+                        "cart"
+                    )
+                );
+
+            LeNCHoTeCHCartState.items =
+                cartSnapshot.docs
+                    .map(cartDocument => {
+                        const data =
+                            cartDocument.data();
+
+                        return {
+                            productId: Number(
+                                data.productId ??
+                                cartDocument.id
+                            ),
+
+                            quantity: Math.max(
+                                1,
+                                Number(
+                                    data.quantity
+                                ) || 1
+                            )
+                        };
+                    })
+                    .filter(item => {
+                        const product =
+                            getCartProductById(
+                                item.productId
+                            );
+
+                        return (
+                            Number.isFinite(
+                                item.productId
+                            ) &&
+                            Boolean(product)
+                        );
+                    });
+
+            validateCartQuantities(false);
+
+            return;
+        } catch (error) {
+            console.error(
+                "LeNCHoTeCH: no fue posible cargar el carrito de Firestore.",
+                error
+            );
+
+            LeNCHoTeCHCartState.items = [];
+
+            return;
+        }
+    }
+
+
+    /*
+        INVITADO:
+        cargar su carrito temporal desde localStorage.
+    */
+
     try {
         const storedCart =
             localStorage.getItem(
@@ -205,6 +351,7 @@ function loadCart() {
 
         if (!storedCart) {
             LeNCHoTeCHCartState.items = [];
+
             return;
         }
 
@@ -213,6 +360,7 @@ function loadCart() {
 
         if (!Array.isArray(parsedCart)) {
             LeNCHoTeCHCartState.items = [];
+
             return;
         }
 
@@ -221,10 +369,13 @@ function loadCart() {
                 .map(item => ({
                     productId:
                         Number(item.productId),
+
                     quantity:
                         Math.max(
                             1,
-                            Number(item.quantity) || 1
+                            Number(
+                                item.quantity
+                            ) || 1
                         )
                 }))
                 .filter(item => {
@@ -233,13 +384,18 @@ function loadCart() {
                             item.productId
                         );
 
-                    return Boolean(product);
+                    return (
+                        Number.isFinite(
+                            item.productId
+                        ) &&
+                        Boolean(product)
+                    );
                 });
 
         validateCartQuantities();
     } catch (error) {
         console.warn(
-            "LeNCHoTeCH: el carrito guardado no pudo cargarse.",
+            "LeNCHoTeCH: el carrito local no pudo cargarse.",
             error
         );
 
@@ -247,11 +403,154 @@ function loadCart() {
     }
 }
 
+/**
+ * Guarda o actualiza un artículo del carrito
+ * en la cuenta del usuario.
+ *
+ * @param {{productId: number, quantity: number}} item
+ */
+async function saveCartItemToFirestore(item) {
+    if (!authenticatedUser || !item) {
+        return;
+    }
+
+    try {
+        await setDoc(
+            doc(
+                db,
+                "users",
+                authenticatedUser.uid,
+                "cart",
+                String(item.productId)
+            ),
+            {
+                productId: item.productId,
+                quantity: item.quantity,
+                updatedAt: serverTimestamp()
+            },
+            {
+                merge: true
+            }
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible sincronizar el producto del carrito.",
+            error
+        );
+
+        showCartToast(
+            getCartTranslation(
+                "cart.syncErrorTitle",
+                "Error de sincronización"
+            ),
+            getCartTranslation(
+                "cart.saveSyncErrorMessage",
+                "El carrito cambió en la pantalla, pero no pudo guardarse en tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
+
+
+/**
+ * Elimina un artículo del carrito de Firestore.
+ *
+ * @param {number} productId
+ */
+async function deleteCartItemFromFirestore(
+    productId
+) {
+    if (!authenticatedUser) {
+        return;
+    }
+
+    try {
+        await deleteDoc(
+            doc(
+                db,
+                "users",
+                authenticatedUser.uid,
+                "cart",
+                String(productId)
+            )
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible eliminar el producto del carrito en Firestore.",
+            error
+        );
+
+        showCartToast(
+            getCartTranslation(
+                "cart.syncErrorTitle",
+                "Error de sincronización"
+            ),
+            getCartTranslation(
+                "cart.deleteSyncErrorMessage",
+                "El producto desapareció de la pantalla, pero no pudo eliminarse de tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
+
+
+/**
+ * Elimina todos los artículos del carrito
+ * guardado en Firestore.
+ */
+async function clearFirestoreCart() {
+    if (!authenticatedUser) {
+        return;
+    }
+
+    try {
+        const cartSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "users",
+                    authenticatedUser.uid,
+                    "cart"
+                )
+            );
+
+        await Promise.all(
+            cartSnapshot.docs.map(
+                cartDocument =>
+                    deleteDoc(
+                        cartDocument.ref
+                    )
+            )
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible vaciar el carrito de Firestore.",
+            error
+        );
+
+        showCartToast(
+            getCartTranslation(
+                "cart.syncErrorTitle",
+                "Error de sincronización"
+            ),
+            getCartTranslation(
+                "cart.clearSyncErrorMessage",
+                "El carrito se vació en la pantalla, pero no pudo actualizarse completamente en tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
+
 
 /**
  * Ajusta cantidades que superen el inventario actual.
  */
-function validateCartQuantities() {
+function validateCartQuantities(
+    saveAfterValidation = true
+) {
     LeNCHoTeCHCartState.items =
         LeNCHoTeCHCartState.items
             .map(item => {
@@ -260,39 +559,35 @@ function validateCartQuantities() {
                         item.productId
                     );
 
-                if (!product || product.stock <= 0) {
+                if (
+                    !product ||
+                    product.stock <= 0
+                ) {
                     return null;
                 }
 
                 return {
-                    productId: item.productId,
-                    quantity: Math.min(
-                        item.quantity,
-                        product.stock
-                    )
+                    productId:
+                        item.productId,
+
+                    quantity:
+                        Math.min(
+                            item.quantity,
+                            product.stock
+                        )
                 };
             })
             .filter(Boolean);
 
-    saveCart();
+    if (saveAfterValidation) {
+        saveCart();
+    }
 }
 
 
 /* =========================================================
    4. SELECTORES
 ========================================================= */
-
-/**
- * Obtiene el panel lateral del carrito.
- *
- * @returns {HTMLElement|null}
- */
-function getCartDrawer() {
-    return document.querySelector(
-        "#cart-drawer, [data-cart-drawer]"
-    );
-}
-
 
 /**
  * Obtiene el contenedor de productos.
@@ -374,20 +669,6 @@ function getClearCartButton() {
 }
 
 
-/**
- * Obtiene el estado vacío.
- *
- * @returns {HTMLElement|null}
- */
-function getCartEmptyState() {
-    return document.querySelector(
-        "#cart-empty-state, " +
-        ".cart-empty-state, " +
-        "[data-cart-empty]"
-    );
-}
-
-
 /* =========================================================
    5. INFORMACIÓN DEL CARRITO
 ========================================================= */
@@ -405,6 +686,19 @@ function findCartItem(productId) {
         item =>
             item.productId === normalizedId
     ) || null;
+}
+
+/**
+ * Indica si un producto está actualmente
+ * dentro del carrito.
+ *
+ * @param {number|string} productId
+ * @returns {boolean}
+ */
+function isProductInCart(productId) {
+    return Boolean(
+        findCartItem(productId)
+    );
 }
 
 
@@ -497,8 +791,14 @@ function addToCart(
 
     if (!product) {
         showCartToast(
-            "Producto no encontrado",
-            "No fue posible añadir este producto.",
+            getCartTranslation(
+                "cart.productNotFoundTitle",
+                "Producto no encontrado"
+            ),
+            getCartTranslation(
+                "cart.productNotFoundMessage",
+                "No fue posible añadir este producto."
+            ),
             "danger"
         );
 
@@ -507,8 +807,22 @@ function addToCart(
 
     if (product.stock <= 0) {
         showCartToast(
-            "Producto agotado",
-            `${product.name} no está disponible actualmente.`,
+            getCartTranslation(
+                "cart.outOfStockTitle",
+                "Producto agotado"
+            ),
+            getCartTranslationWithVariables(
+                "cart.outOfStockMessage",
+                "{name} no está disponible actualmente.",
+                {
+                    name:
+                        getCartApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            ),
             "warning"
         );
 
@@ -536,8 +850,23 @@ function addToCart(
                 product.stock;
 
             showCartToast(
-                "Cantidad ajustada",
-                `Solo hay ${product.stock} unidades disponibles de ${product.name}.`,
+                getCartTranslation(
+                    "cart.quantityAdjustedTitle",
+                    "Cantidad ajustada"
+                ),
+                getCartTranslationWithVariables(
+                    "cart.quantityAdjustedMessage",
+                    "Solo hay {stock} unidades disponibles de {name}.",
+                    {
+                        stock: product.stock,
+                        name:
+                            getCartApp()
+                                .getTranslatedProductName?.(
+                                    product
+                                ) ||
+                            product.name
+                    }
+                ),
                 "warning"
             );
         } else {
@@ -545,8 +874,22 @@ function addToCart(
                 newQuantity;
 
             showCartToast(
-                "Carrito actualizado",
-                `Se añadió otra unidad de ${product.name}.`,
+                getCartTranslation(
+                    "cart.cartUpdatedTitle",
+                    "Carrito actualizado"
+                ),
+                getCartTranslationWithVariables(
+                    "cart.cartUpdatedMessage",
+                    "Se añadió otra unidad de {name}.",
+                    {
+                        name:
+                            getCartApp()
+                                .getTranslatedProductName?.(
+                                    product
+                                ) ||
+                            product.name
+                    }
+                ),
                 "success"
             );
         }
@@ -560,13 +903,37 @@ function addToCart(
         });
 
         showCartToast(
-            "Añadido al carrito",
-            `${product.name} se añadió correctamente.`,
+            getCartTranslation(
+                "cart.addedTitle",
+                "Añadido al carrito"
+            ),
+            getCartTranslationWithVariables(
+                "cart.addedMessage",
+                "{name} se añadió correctamente.",
+                {
+                    name:
+                        getCartApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            ),
             "success"
         );
     }
 
-    saveCart();
+    const updatedItem =
+        findCartItem(product.id);
+
+    if (authenticatedUser) {
+        saveCartItemToFirestore(
+            updatedItem
+        );
+    } else {
+        saveCart();
+    }
+
     renderCart();
 
     document.dispatchEvent(
@@ -583,6 +950,32 @@ function addToCart(
                 }
             }
         )
+    );
+
+    return true;
+}
+
+/**
+ * Añade o elimina un producto según
+ * su estado actual en el carrito.
+ *
+ * @param {number|string} productId
+ * @param {number} quantity
+ * @returns {boolean}
+ */
+function toggleCartProduct(
+    productId,
+    quantity = 1
+) {
+    if (isProductInCart(productId)) {
+        removeFromCart(productId);
+
+        return false;
+    }
+
+    addToCart(
+        productId,
+        quantity
     );
 
     return true;
@@ -630,8 +1023,17 @@ function setCartItemQuantity(
         item.quantity = product.stock;
 
         showCartToast(
-            "Cantidad máxima alcanzada",
-            `Solo hay ${product.stock} unidades disponibles.`,
+            getCartTranslation(
+                "cart.maximumQuantityTitle",
+                "Cantidad máxima alcanzada"
+            ),
+            getCartTranslationWithVariables(
+                "cart.maximumQuantityMessage",
+                "Solo hay {stock} unidades disponibles.",
+                {
+                    stock: product.stock
+                }
+            ),
             "warning"
         );
     } else {
@@ -639,7 +1041,12 @@ function setCartItemQuantity(
             normalizedQuantity;
     }
 
-    saveCart();
+    if (authenticatedUser) {
+        saveCartItemToFirestore(item);
+    } else {
+        saveCart();
+    }
+
     renderCart();
     dispatchCartUpdatedEvent();
 }
@@ -716,15 +1123,39 @@ function removeFromCart(productId) {
         return;
     }
 
-    saveCart();
+    if (authenticatedUser) {
+        deleteCartItemFromFirestore(
+            normalizedId
+        );
+    } else {
+        saveCart();
+    }
+
     renderCart();
     dispatchCartUpdatedEvent();
 
     showCartToast(
-        "Producto eliminado",
+        getCartTranslation(
+            "cart.removedTitle",
+            "Producto eliminado"
+        ),
         product
-            ? `${product.name} se eliminó del carrito.`
-            : "El producto se eliminó del carrito.",
+            ? getCartTranslationWithVariables(
+                "cart.removedMessage",
+                "{name} se eliminó del carrito.",
+                {
+                    name:
+                        getCartApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            )
+            : getCartTranslation(
+                "cart.removedGenericMessage",
+                "El producto se eliminó del carrito."
+            ),
         "default"
     );
 }
@@ -744,14 +1175,25 @@ function clearCart(showMessage = true) {
 
     LeNCHoTeCHCartState.items = [];
 
-    saveCart();
+    if (authenticatedUser) {
+        clearFirestoreCart();
+    } else {
+        saveCart();
+    }
+
     renderCart();
     dispatchCartUpdatedEvent();
 
     if (showMessage) {
         showCartToast(
-            "Carrito vacío",
-            "Todos los productos fueron eliminados.",
+            getCartTranslation(
+                "cart.clearedTitle",
+                "Carrito vacío"
+            ),
+            getCartTranslation(
+                "cart.clearedMessage",
+                "Todos los productos fueron eliminados."
+            ),
             "default"
         );
     }
@@ -775,6 +1217,17 @@ function createCartItemHTML(cartEntry) {
         lineTotal
     } = cartEntry;
 
+    const app =
+        getCartApp();
+
+    const visibleProductName =
+        typeof app.getTranslatedProductName ===
+        "function"
+            ? app.getTranslatedProductName(
+                product
+            )
+            : product.name;
+
     return `
         <article
             class="drawer-item cart-item"
@@ -784,8 +1237,12 @@ function createCartItemHTML(cartEntry) {
                 <img
                     class="drawer-item__image"
                     src="${escapeCartHTML(product.image)}"
-                    alt="${escapeCartHTML(product.name)}"
-                    data-product-name="${escapeCartHTML(product.name)}"
+                    alt="${escapeCartHTML(
+                        visibleProductName
+                    )}"
+                    data-product-name="${escapeCartHTML(
+                        visibleProductName
+                    )}"
                     loading="lazy"
                 >
             </div>
@@ -796,24 +1253,49 @@ function createCartItemHTML(cartEntry) {
                 </span>
 
                 <h3 class="drawer-item__title">
-                    ${escapeCartHTML(product.name)}
+                    ${escapeCartHTML(
+                        visibleProductName
+                    )}
                 </h3>
 
                 <span class="drawer-item__unit-price">
-                    ${formatCartPrice(product.price)}
-                    por unidad
+                    ${escapeCartHTML(
+                        getCartTranslationWithVariables(
+                            "cart.unitPrice",
+                            "{price} por unidad",
+                            {
+                                price:
+                                    formatCartPrice(
+                                        product.price
+                                    )
+                            }
+                        )
+                    )}
                 </span>
 
                 <div
                     class="quantity-control"
-                    aria-label="Cantidad de ${escapeCartHTML(product.name)}"
+                    aria-label="${escapeCartHTML(
+                        getCartTranslationWithVariables(
+                            "cart.quantityFor",
+                            "Cantidad de {name}",
+                            {
+                                name: visibleProductName
+                            }
+                        )
+                    )}"
                 >
                     <button
                         class="quantity-control__button"
                         type="button"
                         data-cart-action="decrease"
                         data-product-id="${product.id}"
-                        aria-label="Reducir cantidad"
+                        aria-label="${escapeCartHTML(
+                            getCartTranslation(
+                                "cart.decreaseQuantity",
+                                "Reducir cantidad"
+                            )
+                        )}"
                     >
                         −
                     </button>
@@ -827,7 +1309,12 @@ function createCartItemHTML(cartEntry) {
                         inputmode="numeric"
                         data-cart-quantity
                         data-product-id="${product.id}"
-                        aria-label="Cantidad"
+                        aria-label="${escapeCartHTML(
+                            getCartTranslation(
+                                "cart.quantity",
+                                "Cantidad"
+                            )
+                        )}"
                     >
 
                     <button
@@ -835,7 +1322,12 @@ function createCartItemHTML(cartEntry) {
                         type="button"
                         data-cart-action="increase"
                         data-product-id="${product.id}"
-                        aria-label="Aumentar cantidad"
+                        aria-label="${escapeCartHTML(
+                            getCartTranslation(
+                                "cart.increaseQuantity",
+                                "Aumentar cantidad"
+                            )
+                        )}"
                         ${
                             quantity >= product.stock
                                 ? "disabled"
@@ -847,7 +1339,15 @@ function createCartItemHTML(cartEntry) {
                 </div>
 
                 <small class="drawer-item__stock">
-                    ${product.stock} disponibles
+                    ${escapeCartHTML(
+                        getCartTranslationWithVariables(
+                            "cart.availableStock",
+                            "{stock} disponibles",
+                            {
+                                stock: product.stock
+                            }
+                        )
+                    )}
                 </small>
             </div>
 
@@ -861,8 +1361,21 @@ function createCartItemHTML(cartEntry) {
                     type="button"
                     data-cart-action="remove"
                     data-product-id="${product.id}"
-                    aria-label="Eliminar ${escapeCartHTML(product.name)}"
-                    title="Eliminar producto"
+                    aria-label="${escapeCartHTML(
+                        getCartTranslationWithVariables(
+                            "cart.removeProductLabel",
+                            "Eliminar {name}",
+                            {
+                                name: visibleProductName
+                            }
+                        )
+                    )}"
+                    title="${escapeCartHTML(
+                        getCartTranslation(
+                            "cart.removeProductTitle",
+                            "Eliminar producto"
+                        )
+                    )}"
                 >
                     ×
                 </button>
@@ -887,10 +1400,22 @@ function createEmptyCartHTML() {
                 🛒
             </span>
 
-            <h3>Tu carrito está vacío</h3>
+            <h3>
+                ${escapeCartHTML(
+                    getCartTranslation(
+                        "cart.emptyTitle",
+                        "Tu carrito está vacío"
+                    )
+                )}
+            </h3>
 
             <p>
-                Añade productos del catálogo para verlos aquí.
+                ${escapeCartHTML(
+                    getCartTranslation(
+                        "cart.emptyDescription",
+                        "Añade productos del catálogo para verlos aquí."
+                    )
+                )}
             </p>
 
             <button
@@ -898,7 +1423,12 @@ function createEmptyCartHTML() {
                 type="button"
                 data-cart-action="continue-shopping"
             >
-                Ver productos
+                ${escapeCartHTML(
+                    getCartTranslation(
+                        "cart.viewProducts",
+                        "Ver productos"
+                    )
+                )}
             </button>
         </div>
     `;
@@ -934,6 +1464,7 @@ function renderCart() {
     updateCartCounter();
     updateCartTotals();
     updateCartButtons();
+    synchronizeCartProductButtons();
 }
 
 
@@ -959,11 +1490,18 @@ function updateCartCounter() {
 
     counter.setAttribute(
         "aria-label",
-        `${itemCount} ${
-            itemCount === 1
-                ? "producto"
-                : "productos"
-        } en el carrito`
+        itemCount === 1
+            ? getCartTranslation(
+                "cart.counterSingle",
+                "1 producto en el carrito"
+            )
+            : getCartTranslationWithVariables(
+                "cart.counterPlural",
+                "{count} productos en el carrito",
+                {
+                    count: itemCount
+                }
+            )
     );
 }
 
@@ -1012,9 +1550,149 @@ function updateCartButtons() {
     }
 
     if (clearButton) {
+        clearButton.hidden =
+            isEmpty;
+
         clearButton.disabled =
             isEmpty;
     }
+}
+
+/**
+ * Sincroniza todos los botones para añadir
+ * o eliminar productos del carrito.
+ */
+function synchronizeCartProductButtons() {
+    document
+        .querySelectorAll(
+            '[data-action="add-to-cart"]'
+        )
+        .forEach(button => {
+            const productId =
+                Number(
+                    button.dataset.productId
+                );
+
+            if (!Number.isFinite(productId)) {
+                return;
+            }
+
+            const product =
+                getCartProductById(productId);
+
+            if (!product) {
+                return;
+            }
+
+            const app =
+                getCartApp();
+
+            const visibleProductName =
+                typeof app.getTranslatedProductName ===
+                "function"
+                    ? app.getTranslatedProductName(
+                        product
+                    )
+                    : product.name;
+
+            const isInCart =
+                isProductInCart(productId);
+
+            const language =
+                document.documentElement.lang ===
+                "en"
+                    ? "en"
+                    : "es";
+
+            const getTranslation =
+                window.LENCHOTECH_I18N
+                    ?.getTranslation;
+
+            const translationKey =
+                isInCart
+                    ? (
+                        button.closest(
+                            ".quick-view-layout"
+                        )
+                            ? "quickView.removeFromCart"
+                            : "productCard.removeFromCart"
+                    )
+                    : (
+                        button.closest(
+                            ".quick-view-layout"
+                        )
+                            ? "quickView.addToCart"
+                            : "productCard.add"
+                    );
+
+            const fallbackText =
+                isInCart
+                    ? "Eliminar del carrito"
+                    : "Añadir al carrito";
+
+            const buttonText =
+                typeof getTranslation ===
+                "function"
+                    ? (
+                        getTranslation(
+                            language,
+                            translationKey
+                        ) || fallbackText
+                    )
+                    : fallbackText;
+
+            const labelKey =
+                isInCart
+                    ? "productCard.removeFromCartLabel"
+                    : "productCard.addToCartLabel";
+
+            const labelFallback =
+                isInCart
+                    ? "Eliminar {name} del carrito"
+                    : "Añadir {name} al carrito";
+
+            let accessibleLabel =
+                typeof getTranslation ===
+                "function"
+                    ? (
+                        getTranslation(
+                            language,
+                            labelKey
+                        ) || labelFallback
+                    )
+                    : labelFallback;
+
+            accessibleLabel =
+                accessibleLabel.replaceAll(
+                    "{name}",
+                    visibleProductName
+                );
+
+            button.textContent =
+                buttonText;
+
+            button.setAttribute(
+                "aria-label",
+                accessibleLabel
+            );
+
+            button.title =
+                buttonText;
+
+            button.classList.toggle(
+                "is-in-cart",
+                isInCart
+            );
+
+            button.dataset.cartState =
+                isInCart
+                    ? "added"
+                    : "available";
+
+            button.disabled =
+                product.stock <= 0 &&
+                !isInCart;
+        });
 }
 
 
@@ -1150,8 +1828,14 @@ function openCheckout() {
         LeNCHoTeCHCartState.items.length === 0
     ) {
         showCartToast(
-            "Carrito vacío",
-            "Añade al menos un producto antes de continuar.",
+            getCartTranslation(
+                "cart.clearedTitle",
+                "Carrito vacío"
+            ),
+            getCartTranslation(
+                "cart.emptyCheckoutMessage",
+                "Añade al menos un producto antes de continuar."
+            ),
             "warning"
         );
 
@@ -1163,8 +1847,20 @@ function openCheckout() {
 
     if (!modal) {
         showCartToast(
-            "Compra preparada",
-            `Total: ${formatCartPrice(getCartSubtotal())}`,
+            getCartTranslation(
+                "cart.preparedTitle",
+                "Compra preparada"
+            ),
+            getCartTranslationWithVariables(
+                "cart.preparedMessage",
+                "Total: {total}",
+                {
+                    total:
+                        formatCartPrice(
+                            getCartSubtotal()
+                        )
+                }
+            ),
             "success"
         );
 
@@ -1239,8 +1935,17 @@ function submitCheckout(form) {
             }
 
             showCartToast(
-                "Compra completada",
-                `Orden ${orderNumber} registrada correctamente.`,
+                getCartTranslation(
+                    "cart.completedTitle",
+                    "Compra completada"
+                ),
+                getCartTranslationWithVariables(
+                    "cart.completedMessage",
+                    "Orden {order} registrada correctamente.",
+                    {
+                        order: orderNumber
+                    }
+                ),
                 "success"
             );
         },
@@ -1312,6 +2017,20 @@ function initializeCartEvents() {
 
             if (productId) {
                 addToCart(productId);
+            }
+        }
+    );
+
+    document.addEventListener(
+        "lenchotech:toggle-cart",
+        event => {
+            const productId =
+                event.detail?.productId;
+
+            if (productId) {
+                toggleCartProduct(
+                    productId
+                );
             }
         }
     );
@@ -1469,6 +2188,8 @@ window.LENCHOTECH_CART = {
 
     add: addToCart,
     remove: removeFromCart,
+    toggle: toggleCartProduct,
+    has: isProductInCart,
     clear: clearCart,
 
     increase: increaseCartItem,
@@ -1480,6 +2201,10 @@ window.LENCHOTECH_CART = {
     getSubtotal: getCartSubtotal,
 
     render: renderCart,
+
+    synchronize:
+        synchronizeCartProductButtons,
+
     openCheckout
 };
 
@@ -1496,3 +2221,23 @@ if (document.readyState === "loading") {
 } else {
     initializeCart();
 }
+
+window.addEventListener(
+    "lenchotech-auth-changed",
+    async event => {
+        authenticatedUser =
+            event.detail?.user || null;
+
+        await loadCart();
+
+        renderCart();
+        dispatchCartUpdatedEvent();
+    }
+);
+
+document.addEventListener(
+    "lenchotech:language-changed",
+    () => {
+        renderCart();
+    }
+);

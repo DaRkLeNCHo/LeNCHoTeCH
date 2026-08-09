@@ -46,7 +46,11 @@
          ACCESIBILIDAD
     =================================================== -->
 
-    <a href="#main-content" class="skip-link">
+    <a
+        href="#main-content"
+        class="skip-link"
+        data-i18n="common.skipToContent"
+    >
         Saltar al contenido principal
     </a>
 
@@ -58,13 +62,23 @@
     <div class="top-bar">
         <div class="container top-bar__content">
 
-            <p>
+            <p data-i18n="topBar.shipping">
                 Envío simulado gratis en órdenes de $75 o más
             </p>
 
             <div class="top-bar__links">
-                <a href="#about">Sobre nosotros</a>
-                <a href="#contact">Contacto</a>
+                <a
+                    href="#about"
+                    data-i18n="topBar.about"
+                >
+                    Sobre nosotros
+                </a>
+                <a
+                    href="#contact"
+                    data-i18n="topBar.contact"
+                >
+                    Contacto
+                </a>
             </div>
 
         </div>
@@ -84,6 +98,7 @@
                 href="#home"
                 class="brand"
                 aria-label="Ir al inicio de LeNCHoTeCH"
+                data-i18n-aria-label="header.homeLabel"
             >
 
                 <div class="brand__logo-container">
@@ -117,7 +132,10 @@
                         LeNCHoTeCH
                     </span>
 
-                    <span class="brand__slogan">
+                    <span
+                        class="brand__slogan"
+                        data-i18n="header.brandSlogan"
+                    >
                         “Todo lo que pase es mi culpa”
                     </span>
                 </div>
@@ -136,6 +154,7 @@
                 <label
                     for="search-input"
                     class="sr-only"
+                    data-i18n="header.searchLabel"
                 >
                     Buscar productos
                 </label>
@@ -152,6 +171,7 @@
                     id="search-input"
                     class="search-box__input"
                     placeholder="Buscar productos, marcas o categorías..."
+                    data-i18n-placeholder="header.searchPlaceholder"
                     maxlength="80"
                 >
 
@@ -160,7 +180,9 @@
                     id="clear-search-button"
                     class="search-box__clear"
                     aria-label="Limpiar búsqueda"
+                    data-i18n-aria-label="header.clearSearch"
                     title="Limpiar búsqueda"
+                    data-i18n-title="header.clearSearch"
                     hidden
                 >
                     ×
@@ -169,6 +191,7 @@
                 <button
                     type="submit"
                     class="search-box__button"
+                    data-i18n="header.searchButton"
                 >
                     Buscar
                 </button>
@@ -192,7 +215,9 @@
                     id="favorites-button"
                     class="icon-button"
                     aria-label="Ver productos favoritos"
+                    data-i18n-aria-label="header.favoritesLabel"
                     title="Favoritos"
+                    data-i18n-title="header.favorites"
                 >
                     <span
                         class="icon-button__icon"
@@ -201,7 +226,10 @@
                         ♡
                     </span>
 
-                    <span class="icon-button__label">
+                    <span
+                        class="icon-button__label"
+                        data-i18n="header.favorites"
+                    >
                         Favoritos
                     </span>
 
@@ -220,7 +248,9 @@
                     id="cart-button"
                     class="icon-button"
                     aria-label="Abrir carrito de compras"
+                    data-i18n-aria-label="header.cartLabel"
                     title="Carrito"
+                    data-i18n-title="header.cart"
                 >
                     <span
                         class="icon-button__icon"
@@ -229,7 +259,10 @@
                         🛒
                     </span>
 
-                    <span class="icon-button__label">
+                    <span
+                        class="icon-button__label"
+                        data-i18n="header.cart"
+                    >
                         Carrito
                     </span>
 
@@ -276,6 +309,111 @@
                     </span>
                 </button>
 
+                <div class="language-selector">
+
+                    <button
+                        type="button"
+                        id="language-button"
+                        class="icon-button icon-button--language"
+                        aria-label="Cambiar idioma"
+                        data-i18n-aria-label="language.buttonLabel"
+                        aria-expanded="false"
+                        aria-controls="language-menu"
+                        title="Idioma"
+                        data-i18n-title="language.buttonLabel"
+                    >
+                        <span
+                            class="icon-button__icon"
+                            aria-hidden="true"
+                        >
+                            <svg
+                                class="icon-button__svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                ></circle>
+
+                                <path
+                                    d="M3 12h18"
+                                ></path>
+
+                                <path
+                                    d="M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21"
+                                ></path>
+
+                                <path
+                                    d="M12 3C9.6 5.5 8.3 8.5 8.3 12s1.3 6.5 3.7 9"
+                                ></path>
+                            </svg>
+                        </span>
+
+                        <span
+                            id="language-button-label"
+                            class="icon-button__label"
+                        >
+                            ES
+                        </span>
+                    </button>
+
+
+                    <div
+                        id="language-menu"
+                        class="language-menu"
+                        role="menu"
+                        aria-label="Seleccionar idioma"
+                        data-i18n-aria-label="language.menuLabel"
+                        hidden
+                    >
+                        <button
+                            type="button"
+                            class="language-menu__option is-active"
+                            data-language="es"
+                            role="menuitem"
+                            aria-pressed="true"
+                        >
+                            <span class="language-menu__code">
+                                ES
+                            </span>
+
+                            <span
+                                class="language-menu__name"
+                                data-i18n="language.spanish"
+                            >
+                                Español
+                            </span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="language-menu__option"
+                            data-language="en"
+                            role="menuitem"
+                            aria-pressed="false"
+                        >
+                            <span class="language-menu__code">
+                                EN
+                            </span>
+
+                            <span
+                                class="language-menu__name"
+                                data-i18n="language.english"
+                            >
+                                English
+                            </span>
+                        </button>
+                    </div>
+
+                </div>
+
                 <button
                     type="button"
                     id="theme-toggle"
@@ -291,7 +429,10 @@
                         🌙
                     </span>
 
-                    <span class="icon-button__label">
+                    <span
+                        class="icon-button__label"
+                        data-i18n="header.theme"
+                    >
                         Tema
                     </span>
                 </button>
@@ -308,6 +449,7 @@
         <nav
             class="main-navigation"
             aria-label="Navegación principal"
+            data-i18n-aria-label="navigation.mainLabel"
         >
 
             <div class="container navigation-content">
@@ -318,6 +460,7 @@
                     id="mobile-menu-button"
                     class="mobile-menu-button"
                     aria-label="Abrir menú principal"
+                    data-i18n-aria-label="navigation.mobileMenuLabel"
                     aria-expanded="false"
                     aria-controls="main-menu"
                 >
@@ -337,6 +480,7 @@
                             href="#home"
                             class="navigation-link active"
                             data-navigation="home"
+                            data-i18n="navigation.home"
                         >
                             Inicio
                         </a>
@@ -347,6 +491,7 @@
                             href="#products"
                             class="navigation-link"
                             data-navigation="products"
+                            data-i18n="navigation.products"
                         >
                             Productos
                         </a>
@@ -361,7 +506,9 @@
                             class="navigation-link navigation-dropdown__button"
                             aria-expanded="false"
                         >
-                            Categorías
+                            <span data-i18n="navigation.categories">
+                                Categorías
+                            </span>
 
                             <span
                                 class="dropdown-arrow"
@@ -377,7 +524,9 @@
                             <!-- Displays -->
                             <section class="mega-menu__group">
 
-                                <h3>Displays</h3>
+                                <h3 data-i18n="categoryNames.displays">
+                                    Displays
+                                </h3>
 
                                 <button
                                     type="button"
@@ -430,7 +579,9 @@
                                     data-category="Displays"
                                     data-subcategory="Touchscreen"
                                 >
-                                    Touchscreen
+                                    <span data-i18n="subcategoryNames.touchscreen">
+                                        Touchscreen
+                                    </span>
                                 </button>
 
                             </section>
@@ -439,7 +590,9 @@
                             <!-- Cables -->
                             <section class="mega-menu__group">
 
-                                <h3>Cables y conectores</h3>
+                                <h3 data-i18n="categoryNames.cables">
+                                    Cables y conectores
+                                </h3>
 
                                 <button
                                     type="button"
@@ -447,7 +600,9 @@
                                     data-category="Cables"
                                     data-subcategory="Copper"
                                 >
-                                    Copper
+                                    <span data-i18n="subcategoryNames.copper">
+                                        Copper
+                                    </span>
                                 </button>
 
                                 <button
@@ -465,7 +620,9 @@
                                     data-category="Cables"
                                     data-subcategory="Fiber"
                                 >
-                                    Fiber
+                                    <span data-i18n="subcategoryNames.fiber">
+                                        Fiber
+                                    </span>
                                 </button>
 
                                 <button
@@ -492,7 +649,9 @@
                                     data-category="Cables"
                                     data-subcategory="Storage"
                                 >
-                                    Storage
+                                    <span data-i18n="subcategoryNames.storage">
+                                        Storage
+                                    </span>
                                 </button>
 
                                 <button
@@ -501,7 +660,9 @@
                                     data-category="Cables"
                                     data-subcategory="Connectors"
                                 >
-                                    Connectors
+                                    <span data-i18n="subcategoryNames.connectors">
+                                        Connectors
+                                    </span>
                                 </button>
 
                             </section>
@@ -554,7 +715,9 @@
                             <!-- Storage -->
                             <section class="mega-menu__group">
 
-                                <h3>Storage</h3>
+                                <h3 data-i18n="categoryNames.storage">
+                                    Storage
+                                </h3>
 
                                 <button
                                     type="button"
@@ -607,7 +770,9 @@
                                     data-category="Storage"
                                     data-subcategory="Removable"
                                 >
-                                    Removable
+                                    <span data-i18n="subcategoryNames.removable">
+                                        Removable
+                                    </span>
                                 </button>
 
                                 <button
@@ -616,7 +781,9 @@
                                     data-category="Storage"
                                     data-subcategory="Optical"
                                 >
-                                    Optical
+                                    <span data-i18n="subcategoryNames.optical">
+                                        Optical
+                                    </span>
                                 </button>
 
                             </section>
@@ -625,7 +792,9 @@
                             <!-- Motherboards y componentes -->
                             <section class="mega-menu__group">
 
-                                <h3>PC Components</h3>
+                                <h3 data-i18n="categoryNames.components">
+                                    PC Components
+                                </h3>
 
                                 <button
                                     type="button"
@@ -642,7 +811,9 @@
                                     data-category="Components"
                                     data-subcategory="Expansion Cards"
                                 >
-                                    Expansion Cards
+                                    <span data-i18n="subcategoryNames.expansionCards">
+                                        Expansion Cards
+                                    </span>
                                 </button>
 
                                 <button
@@ -651,7 +822,9 @@
                                     data-category="Components"
                                     data-subcategory="Cooling"
                                 >
-                                    Cooling
+                                    <span data-i18n="subcategoryNames.cooling">
+                                        Cooling
+                                    </span>
                                 </button>
 
                                 <button
@@ -660,7 +833,9 @@
                                     data-category="Components"
                                     data-subcategory="Power Supplies"
                                 >
-                                    Power Supplies
+                                    <span data-i18n="subcategoryNames.powerSupplies">
+                                        Power Supplies
+                                    </span>
                                 </button>
 
                             </section>
@@ -669,7 +844,9 @@
                             <!-- Printers -->
                             <section class="mega-menu__group">
 
-                                <h3>Printers</h3>
+                                <h3 data-i18n="categoryNames.printers">
+                                    Printers
+                                </h3>
 
                                 <button
                                     type="button"
@@ -695,7 +872,9 @@
                                     data-category="Printers"
                                     data-subcategory="Multifunction"
                                 >
-                                    Multifunction
+                                    <span data-i18n="subcategoryNames.multifunction">
+                                        Multifunction
+                                    </span>
                                 </button>
 
                                 <button
@@ -704,7 +883,9 @@
                                     data-category="Maintenance"
                                     data-subcategory="Toner"
                                 >
-                                    Toner
+                                    <span data-i18n="subcategoryNames.toner">
+                                        Toner
+                                    </span>
                                 </button>
 
                                 <button
@@ -713,7 +894,9 @@
                                     data-category="Maintenance"
                                     data-subcategory="Ink"
                                 >
-                                    Ink
+                                    <span data-i18n="subcategoryNames.ink">
+                                        Ink
+                                    </span>
                                 </button>
 
                                 <button
@@ -722,7 +905,9 @@
                                     data-category="Maintenance"
                                     data-subcategory="Maintenance Kits"
                                 >
-                                    Maintenance Kits
+                                    <span data-i18n="subcategoryNames.maintenanceKits">
+                                        Maintenance Kits
+                                    </span>
                                 </button>
 
                             </section>
@@ -737,6 +922,7 @@
                             type="button"
                             id="offers-navigation-button"
                             class="navigation-link navigation-link--button"
+                            data-i18n="navigation.offers"
                         >
                             Ofertas
                         </button>
@@ -746,6 +932,7 @@
                         <a
                             href="#contact"
                             class="navigation-link"
+                            data-i18n="topBar.contact"
                         >
                             Contacto
                         </a>
@@ -777,15 +964,18 @@
 
                 <div class="intro-section__text">
 
-                    <span class="eyebrow">
+                    <span
+                        class="eyebrow"
+                        data-i18n="intro.eyebrow"
+                    >
                         Componentes, periféricos y más
                     </span>
 
-                    <h1>
+                    <h1 data-i18n="intro.title">
                         Tecnología para cada parte de tu equipo
                     </h1>
 
-                    <p>
+                    <p data-i18n="intro.description">
                         Explora nuestra selección de pantallas, cables,
                         almacenamiento, memoria, componentes, impresoras
                         y productos de mantenimiento.
@@ -796,6 +986,7 @@
                         <a
                             href="#products"
                             class="primary-button"
+                            data-i18n="intro.exploreProducts"
                         >
                             Explorar productos
                         </a>
@@ -803,6 +994,7 @@
                         <a
                             href="#categories"
                             class="secondary-button"
+                            data-i18n="intro.viewCategories"
                         >
                             Ver categorías
                         </a>
@@ -815,6 +1007,7 @@
                 <div
                     class="intro-section__feature-card"
                     aria-label="Información destacada"
+                    data-i18n-aria-label="intro.featureLabel"
                 >
 
                     <span class="feature-card__icon">
@@ -831,7 +1024,7 @@
                             LeNCHoTeCH
                         </strong>
 
-                        <p>
+                        <p data-i18n="intro.slogan">
                             Todo lo que pase es mi culpa.
                         </p>
                     </div>
@@ -850,6 +1043,7 @@
         <section
             class="benefits-section"
             aria-label="Beneficios de la tienda"
+            data-i18n-aria-label="benefits.sectionLabel"
         >
 
             <div class="container benefits-grid">
@@ -858,8 +1052,13 @@
                     <span aria-hidden="true">📦</span>
 
                     <div>
-                        <h2>Amplio catálogo</h2>
-                        <p>Productos de todas las categorías estudiadas.</p>
+                        <h2 data-i18n="benefits.catalogTitle">
+                            Amplio catálogo
+                        </h2>
+
+                        <p data-i18n="benefits.catalogDescription">
+                            Productos de todas las categorías estudiadas.
+                        </p>
                     </div>
                 </article>
 
@@ -867,8 +1066,12 @@
                     <span aria-hidden="true">🔍</span>
 
                     <div>
-                        <h2>Búsqueda rápida</h2>
-                        <p>Encuentra productos por nombre, marca o tipo.</p>
+                        <h2 data-i18n="benefits.searchTitle">
+                            Búsqueda rápida
+                        </h2>
+                        <p data-i18n="benefits.searchDescription">
+                            Encuentra productos por nombre, marca o tipo.
+                        </p>
                     </div>
                 </article>
 
@@ -876,8 +1079,12 @@
                     <span aria-hidden="true">⚖️</span>
 
                     <div>
-                        <h2>Comparación</h2>
-                        <p>Compara características antes de seleccionar.</p>
+                        <h2 data-i18n="benefits.compareTitle">
+                            Comparación
+                        </h2>
+                        <p data-i18n="benefits.compareDescription">
+                            Compara características antes de seleccionar.
+                        </p>
                     </div>
                 </article>
 
@@ -885,8 +1092,12 @@
                     <span aria-hidden="true">🌙</span>
 
                     <div>
-                        <h2>Modo oscuro</h2>
-                        <p>Una experiencia cómoda en cualquier momento.</p>
+                        <h2 data-i18n="benefits.darkModeTitle">
+                            Modo oscuro
+                        </h2>
+                        <p data-i18n="benefits.darkModeDescription">
+                            Una experiencia cómoda en cualquier momento.
+                        </p>
                     </div>
                 </article>
 
@@ -909,23 +1120,19 @@
                 <div class="section-heading">
 
                     <div>
-                        <span class="eyebrow">
+                        <span
+                            class="eyebrow"
+                            data-i18n="categories.eyebrow"
+                        >
                             Navega fácilmente
                         </span>
 
-                        <h2>
+                        <h2
+                            data-i18n="categories.title"
+                        >
                             Categorías
                         </h2>
                     </div>
-
-                    <button
-                        type="button"
-                        id="clear-category-filter-button"
-                        class="text-button"
-                        hidden
-                    >
-                        Mostrar todas
-                    </button>
 
                 </div>
 
@@ -961,22 +1168,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="6"
+                            >
                                 6 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.displays"
+                        >
                             Displays
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.displaysDescription"
+                        >
                             Monitores IPS, VA, OLED y pantallas táctiles.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1011,22 +1230,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="7"
+                            >
                                 7 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.cables"
+                        >
                             Cables
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.cablesDescription"
+                        >
                             Ethernet, HDMI, USB, fibra óptica y adaptadores.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1063,22 +1294,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="4"
+                            >
                                 4 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.ram"
+                        >
                             RAM
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.ramDescription"
+                        >
                             Memoria DIMM, SODIMM, ECC y Non-ECC.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1110,22 +1353,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="7"
+                            >
                                 7 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.storage"
+                        >
                             Storage
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.storageDescription"
+                        >
                             HDD, SSD SATA, NVMe, USB y unidades ópticas.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1163,22 +1418,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="4"
+                            >
                                 4 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.components"
+                        >
                             Components
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.componentsDescription"
+                        >
                             Motherboards, tarjetas gráficas, cooling y fuentes.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1212,22 +1479,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="1"
+                            >
                                 1 producto
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.powerSupplies"
+                        >
                             Power Supplies
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.powerSuppliesDescription"
+                        >
                             Fuentes modulares y certificadas para PC.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1260,22 +1539,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="3"
+                            >
                                 3 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.printers"
+                        >
                             Printers
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.printersDescription"
+                        >
                             Impresoras láser, inkjet y multifuncionales.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1306,22 +1597,34 @@
                                 </svg>
                             </span>
 
-                            <span class="category-card__count">
+                            <span
+                                class="category-card__count"
+                                data-category-count="3"
+                            >
                                 3 productos
                             </span>
 
                         </span>
 
-                        <span class="category-card__name">
+                        <span
+                            class="category-card__name"
+                            data-i18n="categoryNames.maintenance"
+                        >
                             Maintenance
                         </span>
 
-                        <span class="category-card__description">
+                        <span
+                            class="category-card__description"
+                            data-i18n="categoryCards.maintenanceDescription"
+                        >
                             Tinta, tóner y kits de mantenimiento.
                         </span>
 
                         <span class="category-card__action">
-                            Ver categoría
+                            <span data-i18n="categoryCards.viewCategory">
+                                Ver categoría
+                            </span>
+
                             <span aria-hidden="true">→</span>
                         </span>
                     </button>
@@ -1345,11 +1648,14 @@
                 <div class="section-heading">
 
                     <div>
-                        <span class="eyebrow">
+                        <span
+                            class="eyebrow"
+                            data-i18n="catalog.eyebrow"
+                        >
                             Catálogo LeNCHoTeCH
                         </span>
 
-                        <h2>
+                        <h2 data-i18n="catalog.title">
                             Todos los productos
                         </h2>
 
@@ -1357,6 +1663,7 @@
                             id="products-result-text"
                             class="results-text"
                             aria-live="polite"
+                            data-i18n="catalog.preparing"
                         >
                             Preparando catálogo...
                         </p>
@@ -1372,17 +1679,21 @@
                         id="filters-sidebar"
                         class="filters-sidebar"
                         aria-label="Filtros de productos"
+                        data-i18n-aria-label="catalog.filtersLabel"
                     >
 
                         <div class="filters-sidebar__header">
 
-                            <h3>Filtros</h3>
+                            <h3 data-i18n="catalog.filtersTitle">
+                                Filtros
+                            </h3>
 
                             <button
                                 type="button"
                                 id="close-filters-button"
                                 class="close-button"
                                 aria-label="Cerrar filtros"
+                                data-i18n-aria-label="catalog.closeFilters"
                             >
                                 ×
                             </button>
@@ -1392,7 +1703,9 @@
 
                         <div class="filter-group">
 
-                            <h4>Categoría</h4>
+                            <h4 data-i18n="catalog.category">
+                                Categoría
+                            </h4>
 
                             <div
                                 id="category-filters"
@@ -1406,7 +1719,9 @@
 
                         <div class="filter-group">
 
-                            <h4>Subcategoría</h4>
+                            <h4 data-i18n="catalog.subcategory">
+                                Subcategoría
+                            </h4>
 
                             <div
                                 id="subcategory-filters"
@@ -1420,7 +1735,10 @@
 
                         <div class="filter-group">
 
-                            <h4>Disponibilidad</h4>
+                            <h4 data-i18n="catalog.availability">
+                                Disponibilidad
+                            </h4>
+                            
 
                             <label class="checkbox-option">
                                 <input
@@ -1428,7 +1746,9 @@
                                     id="in-stock-filter"
                                 >
 
-                                <span>Solo productos disponibles</span>
+                                <span data-i18n="catalog.inStockOnly">
+                                    Solo productos disponibles
+                                </span>
                             </label>
 
                         </div>
@@ -1436,7 +1756,9 @@
 
                         <div class="filter-group">
 
-                            <h4>Precio máximo</h4>
+                            <h4 data-i18n="catalog.maximumPrice">
+                                Precio máximo
+                            </h4>
 
                             <div class="price-filter">
 
@@ -1466,6 +1788,7 @@
                             type="button"
                             id="reset-filters-button"
                             class="secondary-button secondary-button--full"
+                            data-i18n="catalog.resetFilters"
                         >
                             Restablecer filtros
                         </button>
@@ -1482,6 +1805,7 @@
                                 type="button"
                                 id="open-filters-button"
                                 class="secondary-button filter-mobile-button"
+                                data-i18n="catalog.openFilters"
                             >
                                 Filtros
                             </button>
@@ -1498,33 +1822,54 @@
 
                             <div class="sort-control">
 
-                                <label for="sort-select">
-                                    Ordenar:
+                                <label
+                                    for="sort-select"
+                                    data-i18n="catalog.sortLabel"
+                                >
+                                    Ordenar
                                 </label>
 
                                 <select id="sort-select">
 
-                                    <option value="featured">
+                                    <option
+                                        value="featured"
+                                        data-i18n="catalog.sortFeatured"
+                                    >
                                         Destacados
                                     </option>
 
-                                    <option value="price-asc">
+                                    <option
+                                        value="price-asc"
+                                        data-i18n="catalog.sortPriceLow"
+                                    >
                                         Precio: menor a mayor
                                     </option>
 
-                                    <option value="price-desc">
+                                    <option
+                                        value="price-desc"
+                                        data-i18n="catalog.sortPriceHigh"
+                                    >
                                         Precio: mayor a menor
                                     </option>
 
-                                    <option value="name-asc">
+                                    <option
+                                        value="name-asc"
+                                        data-i18n="catalog.sortNameAsc"
+                                    >
                                         Nombre: A–Z
                                     </option>
 
-                                    <option value="name-desc">
+                                    <option
+                                        value="name-desc"
+                                        data-i18n="catalog.sortNameDesc"
+                                    >
                                         Nombre: Z–A
                                     </option>
 
-                                    <option value="rating-desc">
+                                    <option
+                                        value="rating-desc"
+                                        data-i18n="catalog.sortRating"
+                                    >
                                         Mejor valorados
                                     </option>
 
@@ -1556,11 +1901,11 @@
                                 🔍
                             </span>
 
-                            <h3>
+                            <h3 data-i18n="catalog.emptyTitle">
                                 No encontramos productos
                             </h3>
 
-                            <p>
+                            <p data-i18n="catalog.emptyDescription">
                                 Prueba con otra búsqueda o restablece los filtros.
                             </p>
 
@@ -1568,6 +1913,7 @@
                                 type="button"
                                 id="empty-state-reset-button"
                                 class="primary-button"
+                                data-i18n="catalog.viewAllProducts"
                             >
                                 Ver todos los productos
                             </button>
@@ -1596,21 +1942,24 @@
 
                 <div>
 
-                    <span class="eyebrow">
+                    <span
+                        class="eyebrow"
+                        data-i18n="about.eyebrow"
+                    >
                         Nuestra tienda
                     </span>
 
-                    <h2>
+                    <h2 data-i18n="about.title">
                         Sobre LeNCHoTeCH
                     </h2>
 
-                    <p>
+                    <p data-i18n="about.descriptionOne">
                         LeNCHoTeCH es una tienda simulada creada para mostrar
                         diferentes categorías de hardware, dispositivos,
                         accesorios y productos de mantenimiento tecnológico.
                     </p>
 
-                    <p>
+                    <p data-i18n="about.descriptionTwo">
                         Nuestro compromiso es ofrecer una navegación clara,
                         información organizada y una experiencia visual similar
                         a la de una tienda tecnológica real.
@@ -1620,11 +1969,11 @@
 
 
                 <blockquote class="about-quote">
-                    <p>
+                    <p data-i18n="about.quote">
                         “Todo lo que pase es mi culpa.”
                     </p>
 
-                    <cite>
+                    <cite data-i18n="about.quoteAuthor">
                         — Departamento oficial de excusas de LeNCHoTeCH
                     </cite>
                 </blockquote>
@@ -1647,17 +1996,20 @@
 
                 <div class="contact-information">
 
-                    <span class="eyebrow">
+                    <span
+                        class="eyebrow"
+                        data-i18n="contact.eyebrow"
+                    >
                         ¿Necesitas ayuda?
                     </span>
 
-                    <h2>
+                    <h2 data-i18n="contact.title">
                         Contáctanos
                     </h2>
 
-                    <p>
-                        Este formulario funciona como demostración visual.
-                        No enviará información a un servidor real.
+                    <p data-i18n="contact.description">
+                        Este formulario pertenece a una tienda simulada creada con fines educativos.
+                        Los mensajes enviados no recibirán respuesta.
                     </p>
 
 
@@ -1667,7 +2019,9 @@
                             <span aria-hidden="true">✉️</span>
 
                             <p>
-                                <strong>Email</strong>
+                                <strong data-i18n="contact.emailInfo">
+                                    Email
+                                </strong>
                                 soporte@lenchotech.demo
                             </p>
                         </div>
@@ -1676,8 +2030,13 @@
                             <span aria-hidden="true">🕒</span>
 
                             <p>
-                                <strong>Horario</strong>
-                                Lunes a viernes, 9:00 a. m. – 5:00 p. m.
+                                <strong data-i18n="contact.schedule">
+                                    Horario
+                                </strong>
+
+                                <span data-i18n="contact.scheduleValue">
+                                    Lunes a viernes, 9:00 a. m. – 5:00 p. m.
+                                </span>
                             </p>
                         </div>
 
@@ -1685,8 +2044,13 @@
                             <span aria-hidden="true">📍</span>
 
                             <p>
-                                <strong>Ubicación</strong>
-                                Puerto Rico
+                                <strong data-i18n="contact.location">
+                                    Ubicación
+                                </strong>
+
+                                <span data-i18n="contact.locationValue">
+                                    Puerto Rico
+                                </span>
                             </p>
                         </div>
 
@@ -1702,7 +2066,10 @@
 
                     <div class="form-group">
 
-                        <label for="contact-name">
+                        <label
+                            for="contact-name"
+                            data-i18n="contact.name"
+                        >
                             Nombre
                         </label>
 
@@ -1711,6 +2078,7 @@
                             id="contact-name"
                             name="name"
                             placeholder="Tu nombre"
+                            data-i18n-placeholder="contact.namePlaceholder"
                             required
                         >
 
@@ -1719,7 +2087,10 @@
 
                     <div class="form-group">
 
-                        <label for="contact-email">
+                        <label
+                            for="contact-email"
+                            data-i18n="contact.email"
+                        >
                             Correo electrónico
                         </label>
 
@@ -1728,6 +2099,7 @@
                             id="contact-email"
                             name="email"
                             placeholder="nombre@correo.com"
+                            data-i18n-placeholder="contact.emailPlaceholder"
                             required
                         >
 
@@ -1736,7 +2108,10 @@
 
                     <div class="form-group">
 
-                        <label for="contact-subject">
+                        <label
+                            for="contact-subject"
+                            data-i18n="contact.subject"
+                        >
                             Asunto
                         </label>
 
@@ -1746,23 +2121,38 @@
                             required
                         >
 
-                            <option value="">
+                            <option
+                                value=""
+                                data-i18n="contact.subjectDefault"
+                            >
                                 Selecciona una opción
                             </option>
 
-                            <option value="products">
+                            <option
+                                value="products"
+                                data-i18n="contact.subjectProducts"
+                            >
                                 Información de productos
                             </option>
 
-                            <option value="orders">
+                            <option
+                                value="orders"
+                                data-i18n="contact.subjectOrders"
+                            >
                                 Órdenes simuladas
                             </option>
 
-                            <option value="technical">
+                            <option
+                                value="technical"
+                                data-i18n="contact.subjectTechnical"
+                            >
                                 Ayuda técnica
                             </option>
 
-                            <option value="other">
+                            <option
+                                value="other"
+                                data-i18n="contact.subjectOther"
+                            >
                                 Otro
                             </option>
 
@@ -1773,7 +2163,10 @@
 
                     <div class="form-group">
 
-                        <label for="contact-message">
+                        <label
+                            for="contact-message"
+                            data-i18n="contact.message"
+                        >
                             Mensaje
                         </label>
 
@@ -1782,6 +2175,7 @@
                             name="message"
                             rows="5"
                             placeholder="Escribe tu mensaje..."
+                            data-i18n-placeholder="contact.messagePlaceholder"
                             required
                         ></textarea>
 
@@ -1791,6 +2185,7 @@
                     <button
                         type="submit"
                         class="primary-button primary-button--full"
+                        data-i18n="contact.send"
                     >
                         Enviar mensaje
                     </button>
@@ -1818,11 +2213,14 @@
                     LeNCHoTeCH
                 </h2>
 
-                <p class="footer-brand__slogan">
+                <p
+                    class="footer-brand__slogan"
+                    data-i18n="intro.slogan"
+                >
                     Todo lo que pase es mi culpa.
                 </p>
 
-                <p>
+                <p data-i18n="footer.catalogDescription">
                     Catálogo tecnológico creado como demostración educativa.
                 </p>
 
@@ -1831,15 +2229,27 @@
 
             <section>
 
-                <h3>Tienda</h3>
+                <h3 data-i18n="footer.store">
+                    Tienda
+                </h3>
 
                 <ul>
                     <li>
-                        <a href="#products">Productos</a>
+                        <a
+                            href="#products"
+                            data-i18n="navigation.products"
+                        >
+                            Productos
+                        </a>
                     </li>
 
                     <li>
-                        <a href="#categories">Categorías</a>
+                        <a
+                            href="#categories"
+                            data-i18n="navigation.categories"
+                        >
+                            Categorías
+                        </a>
                     </li>
 
                     <li>
@@ -1847,6 +2257,7 @@
                             type="button"
                             class="footer-link-button"
                             id="footer-offers-button"
+                            data-i18n="navigation.offers"
                         >
                             Ofertas
                         </button>
@@ -1858,19 +2269,37 @@
 
             <section>
 
-                <h3>Información</h3>
+                <h3 data-i18n="footer.information">
+                    Información
+                </h3>
 
                 <ul>
                     <li>
-                        <a href="#about">Sobre nosotros</a>
+                        <a
+                            href="#about"
+                            data-i18n="topBar.about"
+                        >
+                            Sobre nosotros
+                        </a>
                     </li>
 
                     <li>
-                        <a href="#contact">Contacto</a>
+                        <a
+                            href="#contact"
+                            data-i18n="topBar.contact"
+                        >
+                            Contacto
+                        </a>
                     </li>
 
                     <li>
-                        <a href="#home">Volver arriba</a>
+                        <a
+                            href="#home"
+                            id="footer-back-to-top-link"
+                            data-i18n="footer.backToTop"
+                        >
+                            Volver arriba
+                        </a>
                     </li>
                 </ul>
 
@@ -1879,13 +2308,15 @@
 
             <section>
 
-                <h3>Proyecto</h3>
+                <h3 data-i18n="footer.project">
+                    Proyecto
+                </h3>
 
-                <p>
+                <p data-i18n="footer.createdWith">
                     Creado con HTML, CSS y JavaScript.
                 </p>
 
-                <p>
+                <p data-i18n="footer.githubReady">
                     Preparado para GitHub Pages.
                 </p>
 
@@ -1900,10 +2331,13 @@
 
                 <p>
                     © <span id="current-year"></span>
-                    LeNCHoTeCH. Proyecto educativo.
+                    LeNCHoTeCH.
+                    <span data-i18n="footer.educationalProject">
+                        Proyecto educativo.
+                    </span>
                 </p>
 
-                <p>
+                <p data-i18n="footer.responsibility">
                     Sí somos responsables. El slogan nunca mintió.
                 </p>
 
@@ -1929,14 +2363,22 @@
         id="cart-drawer"
         class="side-drawer"
         aria-label="Carrito de compras"
+        data-i18n-aria-label="cart.drawerLabel"
         aria-hidden="true"
     >
 
         <div class="side-drawer__header">
 
             <div>
-                <span class="eyebrow">Tu selección</span>
-                <h2>Carrito</h2>
+                <span
+                    class="eyebrow"
+                    data-i18n="cart.eyebrow"
+                >
+                    Tu selección
+                </span>
+                <h2 data-i18n="cart.title">
+                    Carrito
+                </h2>
             </div>
 
             <button
@@ -1944,6 +2386,7 @@
                 id="close-cart-button"
                 class="close-button"
                 aria-label="Cerrar carrito"
+                data-i18n-aria-label="cart.close"
             >
                 ×
             </button>
@@ -1962,14 +2405,19 @@
         <div class="side-drawer__footer">
 
             <div class="cart-summary-row">
-                <span>Subtotal</span>
+                <span data-i18n="cart.subtotal">
+                    Subtotal
+                </span>
 
                 <strong id="cart-subtotal">
                     $0.00
                 </strong>
             </div>
 
-            <p class="cart-disclaimer">
+            <p
+                class="cart-disclaimer"
+                data-i18n="cart.disclaimer"
+            >
                 Compra simulada. No se procesará ningún pago.
             </p>
 
@@ -1977,6 +2425,7 @@
                 type="button"
                 id="checkout-button"
                 class="primary-button primary-button--full"
+                data-i18n="cart.checkout"
             >
                 Finalizar compra
             </button>
@@ -1985,6 +2434,7 @@
                 type="button"
                 id="clear-cart-button"
                 class="secondary-button secondary-button--full"
+                data-i18n="cart.clear"
             >
                 Vaciar carrito
             </button>
@@ -2002,14 +2452,22 @@
         id="favorites-drawer"
         class="side-drawer"
         aria-label="Productos favoritos"
+        data-i18n-aria-label="favorites.drawerLabel"
         aria-hidden="true"
     >
 
         <div class="side-drawer__header">
 
             <div>
-                <span class="eyebrow">Guardados</span>
-                <h2>Favoritos</h2>
+                <span
+                    class="eyebrow"
+                    data-i18n="favorites.eyebrow"
+                >
+                    Guardados
+                </span>
+                <h2 data-i18n="favorites.title">
+                    Favoritos
+                </h2>
             </div>
 
             <button
@@ -2017,6 +2475,7 @@
                 id="close-favorites-button"
                 class="close-button"
                 aria-label="Cerrar favoritos"
+                data-i18n-aria-label="favorites.close"
             >
                 ×
             </button>
@@ -2029,6 +2488,22 @@
             class="side-drawer__content"
         >
             <!-- Generado desde favorites.js -->
+        </div>
+
+        <div
+            id="favorites-footer"
+            class="side-drawer__footer"
+            hidden
+        >
+            <button
+                type="button"
+                id="clear-favorites-button"
+                class="secondary-button secondary-button--full"
+                data-favorites-action="clear"
+                data-i18n="favorites.clearButton"
+            >
+                Vaciar favoritos
+            </button>
         </div>
 
     </aside>
@@ -2060,6 +2535,8 @@
                 class="auth-modal__close"
                 aria-label="Cerrar ventana de autenticación"
                 title="Cerrar"
+                data-i18n-aria-label="authentication.close"
+                data-i18n-title="authentication.closeTitle"
             >
                 ×
             </button>
@@ -2079,7 +2556,10 @@
                         LeNCHoTeCH
                     </span>
 
-                    <span class="auth-modal__brand-slogan">
+                    <span
+                        class="auth-modal__brand-slogan"
+                        data-i18n="authentication.brandSlogan"
+                    >
                         Todo lo que pase es mi culpa.
                     </span>
                 </div>
@@ -2089,15 +2569,24 @@
 
             <header class="auth-modal__header">
 
-                <span class="eyebrow">
+                <span
+                    class="eyebrow"
+                    data-i18n="authentication.eyebrow"
+                >
                     Tu cuenta LeNCHoTeCH
                 </span>
 
-                <h2 id="auth-modal-title">
+                <h2
+                    id="auth-modal-title"
+                    data-i18n="authentication.welcome"
+                >
                     Bienvenido
                 </h2>
 
-                <p id="auth-modal-description">
+                <p
+                    id="auth-modal-description"
+                    data-i18n="authentication.description"
+                >
                     Inicia sesión o crea una cuenta para guardar tu actividad.
                 </p>
 
@@ -2108,6 +2597,7 @@
                 class="auth-tabs"
                 role="tablist"
                 aria-label="Opciones de autenticación"
+                data-i18n-aria-label="authentication.tabsLabel"
             >
 
                 <button
@@ -2118,6 +2608,7 @@
                     aria-selected="true"
                     aria-controls="login-panel"
                     data-auth-tab="login"
+                    data-i18n="authentication.loginTab"
                 >
                     Iniciar sesión
                 </button>
@@ -2130,6 +2621,7 @@
                     aria-selected="false"
                     aria-controls="register-panel"
                     data-auth-tab="register"
+                    data-i18n="authentication.registerTab"
                 >
                     Crear cuenta
                 </button>
@@ -2154,7 +2646,10 @@
 
                     <div class="auth-form__group">
 
-                        <label for="login-email">
+                        <label
+                            for="login-email"
+                            data-i18n="authentication.email"
+                        >
                             Correo electrónico
                         </label>
 
@@ -2164,6 +2659,7 @@
                             name="email"
                             autocomplete="email"
                             placeholder="nombre@correo.com"
+                            data-i18n-placeholder="authentication.emailPlaceholder"
                             required
                         >
 
@@ -2174,7 +2670,10 @@
 
                         <div class="auth-form__label-row">
 
-                            <label for="login-password">
+                            <label
+                                for="login-password"
+                                data-i18n="authentication.password"
+                            >
                                 Contraseña
                             </label>
 
@@ -2182,6 +2681,7 @@
                                 type="button"
                                 id="forgot-password-button"
                                 class="auth-form__text-button"
+                                data-i18n="authentication.forgotPassword"
                             >
                                 ¿La olvidaste?
                             </button>
@@ -2196,6 +2696,7 @@
                                 name="password"
                                 autocomplete="current-password"
                                 placeholder="Escribe tu contraseña"
+                                data-i18n-placeholder="authentication.passwordPlaceholder"
                                 minlength="6"
                                 required
                             >
@@ -2206,6 +2707,8 @@
                                 data-password-toggle="login-password"
                                 aria-label="Mostrar contraseña"
                                 title="Mostrar contraseña"
+                                data-i18n-aria-label="authentication.showPassword"
+                                data-i18n-title="authentication.showPassword"
                             >
                                 <svg
                                     viewBox="0 0 24 24"
@@ -2238,6 +2741,7 @@
                         type="submit"
                         id="login-submit-button"
                         class="primary-button auth-form__submit"
+                        data-i18n="authentication.loginSubmit"
                     >
                         Iniciar sesión
                     </button>
@@ -2265,7 +2769,10 @@
 
                     <div class="auth-form__group">
 
-                        <label for="register-name">
+                        <label
+                            for="register-name"
+                            data-i18n="authentication.name"
+                        >
                             Nombre
                         </label>
 
@@ -2275,6 +2782,7 @@
                             name="name"
                             autocomplete="name"
                             placeholder="Tu nombre"
+                            data-i18n-placeholder="authentication.namePlaceholder"
                             minlength="2"
                             maxlength="50"
                             required
@@ -2285,7 +2793,10 @@
 
                     <div class="auth-form__group">
 
-                        <label for="register-email">
+                        <label
+                            for="register-email"
+                            data-i18n="authentication.email"
+                        >
                             Correo electrónico
                         </label>
 
@@ -2295,6 +2806,7 @@
                             name="email"
                             autocomplete="email"
                             placeholder="nombre@correo.com"
+                            data-i18n-placeholder="authentication.emailPlaceholder"
                             required
                         >
 
@@ -2303,7 +2815,10 @@
 
                     <div class="auth-form__group">
 
-                        <label for="register-password">
+                        <label
+                            for="register-password"
+                            data-i18n="authentication.password"
+                        >
                             Contraseña
                         </label>
 
@@ -2315,6 +2830,7 @@
                                 name="password"
                                 autocomplete="new-password"
                                 placeholder="Mínimo 6 caracteres"
+                                data-i18n-placeholder="authentication.newPasswordPlaceholder"
                                 minlength="6"
                                 required
                             >
@@ -2325,6 +2841,8 @@
                                 data-password-toggle="register-password"
                                 aria-label="Mostrar contraseña"
                                 title="Mostrar contraseña"
+                                data-i18n-aria-label="authentication.showPassword"
+                                data-i18n-title="authentication.showPassword"
                             >
                                 <svg
                                     viewBox="0 0 24 24"
@@ -2347,7 +2865,10 @@
 
                     <div class="auth-form__group">
 
-                        <label for="register-password-confirmation">
+                        <label
+                            for="register-password-confirmation"
+                            data-i18n="authentication.confirmPassword"
+                        >
                             Confirmar contraseña
                         </label>
 
@@ -2359,6 +2880,7 @@
                                 name="passwordConfirmation"
                                 autocomplete="new-password"
                                 placeholder="Repite tu contraseña"
+                                data-i18n-placeholder="authentication.confirmPasswordPlaceholder"
                                 minlength="6"
                                 required
                             >
@@ -2369,6 +2891,8 @@
                                 data-password-toggle="register-password-confirmation"
                                 aria-label="Mostrar contraseña"
                                 title="Mostrar contraseña"
+                                data-i18n-aria-label="authentication.showPassword"
+                                data-i18n-title="authentication.showPassword"
                             >
                                 <svg
                                     viewBox="0 0 24 24"
@@ -2398,7 +2922,7 @@
                             required
                         >
 
-                        <span>
+                        <span data-i18n="authentication.terms">
                             Acepto que esta cuenta se utilice en esta demostración educativa.
                         </span>
 
@@ -2417,6 +2941,7 @@
                         type="submit"
                         id="register-submit-button"
                         class="primary-button auth-form__submit"
+                        data-i18n="authentication.registerSubmit"
                     >
                         Crear cuenta
                     </button>
@@ -2428,7 +2953,7 @@
 
             <footer class="auth-modal__footer">
 
-                <p>
+                <p data-i18n="authentication.firebaseNotice">
                     Tus contraseñas son administradas de forma segura por Firebase Authentication.
                 </p>
 
@@ -2460,6 +2985,7 @@
                 id="close-account-menu-button"
                 class="account-menu__close"
                 aria-label="Cerrar menú de cuenta"
+                data-i18n-aria-label="accountMenu.close"
             >
                 ×
             </button>
@@ -2486,9 +3012,14 @@
 
             <div class="account-menu__status">
 
-                <span>Estado del correo</span>
+                <span data-i18n="accountMenu.emailStatusLabel">
+                    Estado del correo
+                </span>
 
-                <strong id="account-email-status">
+                <strong
+                    id="account-email-status"
+                    data-i18n="accountMenu.unverified"
+                >
                     Sin verificar
                 </strong>
 
@@ -2498,6 +3029,7 @@
                 type="button"
                 id="resend-verification-button"
                 class="secondary-button account-menu__button"
+                data-i18n="accountMenu.resendVerification"
             >
                 Reenviar verificación
             </button>
@@ -2521,8 +3053,8 @@
                     <path d="M9 12l2 2 4-4"></path>
                 </svg>
 
-                <span>
-                     Administración
+                <span data-i18n="accountMenu.adminPanel">
+                    Administración
                 </span>
             </button>
 
@@ -2530,6 +3062,7 @@
                 type="button"
                 id="logout-button"
                 class="account-menu__logout"
+                data-i18n="accountMenu.logout"
             >
                 Cerrar sesión
             </button>
@@ -2563,15 +3096,21 @@
 
                 <div>
 
-                    <span class="eyebrow">
+                    <span
+                        class="eyebrow"
+                        data-i18n="admin.eyebrow"
+                    >
                         Acceso administrativo
                     </span>
 
-                    <h2 id="admin-modal-title">
+                    <h2
+                        id="admin-modal-title"
+                        data-i18n="admin.title"
+                    >
                         Administración
                     </h2>
 
-                    <p>
+                    <p data-i18n="admin.description">
                         Resumen de usuarios registrados en LeNCHoTeCH.
                     </p>
 
@@ -2584,6 +3123,8 @@
                     class="admin-modal__close"
                     aria-label="Cerrar panel de administración"
                     title="Cerrar"
+                    data-i18n-aria-label="admin.close"
+                    data-i18n-title="admin.closeTitle"
                 >
                     ×
                 </button>
@@ -2595,7 +3136,10 @@
 
                 <article class="admin-stat-card">
 
-                    <span class="admin-stat-card__label">
+                    <span
+                        class="admin-stat-card__label"
+                        data-i18n="admin.registeredUsers"
+                    >
                         Usuarios registrados
                     </span>
 
@@ -2611,7 +3155,10 @@
 
                 <article class="admin-stat-card">
 
-                    <span class="admin-stat-card__label">
+                    <span
+                        class="admin-stat-card__label"
+                        data-i18n="admin.verifiedEmails"
+                    >
                         Correos verificados
                     </span>
 
@@ -2627,7 +3174,10 @@
 
                 <article class="admin-stat-card">
 
-                    <span class="admin-stat-card__label">
+                    <span
+                        class="admin-stat-card__label"
+                        data-i18n="admin.unverified"
+                    >
                         Sin verificar
                     </span>
 
@@ -2643,7 +3193,10 @@
 
                 <article class="admin-stat-card">
 
-                    <span class="admin-stat-card__label">
+                    <span
+                        class="admin-stat-card__label"
+                        data-i18n="admin.totalLogins"
+                    >
                         Inicios de sesión
                     </span>
 
@@ -2664,9 +3217,11 @@
                 <div class="admin-users__heading">
 
                     <div>
-                        <h3>Usuarios</h3>
+                        <h3 data-i18n="admin.usersTitle">
+                            Usuarios
+                        </h3>
 
-                        <p>
+                        <p data-i18n="admin.usersDescription">
                             Cuentas registradas mediante Firebase Authentication.
                         </p>
                     </div>
@@ -2676,6 +3231,7 @@
                         type="button"
                         id="refresh-admin-users-button"
                         class="secondary-button"
+                        data-i18n="admin.refresh"
                     >
                         Actualizar
                     </button>
@@ -2687,6 +3243,7 @@
                     id="admin-users-message"
                     class="admin-users__message"
                     role="status"
+                    data-i18n="admin.initialMessage"
                 >
                     Abre el panel para cargar los usuarios.
                 </p>
@@ -2713,6 +3270,7 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="quick-view-title"
+        data-i18n-aria-label="quickView.modalLabel"
         hidden
     >
 
@@ -2729,6 +3287,8 @@
                 id="close-quick-view-button"
                 class="modal__close"
                 aria-label="Cerrar vista rápida"
+                data-i18n-aria-label="quickView.close"
+                data-close-modal
             >
                 ×
             </button>
@@ -2757,7 +3317,7 @@
 
             <div>
 
-                <strong>
+                <strong data-i18n="compare.barTitle">
                     Comparar productos
                 </strong>
 
@@ -2781,6 +3341,7 @@
                     id="clear-compare-button"
                     data-compare-action="clear"
                     class="secondary-button"
+                    data-i18n="compare.clear"
                 >
                     Limpiar
                 </button>
@@ -2790,6 +3351,7 @@
                     id="open-compare-button"
                     data-compare-action="open"
                     class="primary-button"
+                    data-i18n="compare.compare"
                     disabled
                 >
                     Comparar
@@ -2825,11 +3387,17 @@
             <div class="modal__header">
 
                 <div>
-                    <span class="eyebrow">
+                    <span
+                        class="eyebrow"
+                        data-i18n="compare.modalEyebrow"
+                    >
                         Comparación
                     </span>
 
-                    <h2 id="compare-modal-title">
+                    <h2
+                        id="compare-modal-title"
+                        data-i18n="compare.modalTitle"
+                    >
                         Comparar productos
                     </h2>
                 </div>
@@ -2840,6 +3408,7 @@
                     data-compare-action="close"
                     class="modal__close modal__close--static"
                     aria-label="Cerrar comparación"
+                    data-i18n-aria-label="compare.close"
                 >
                     ×
                 </button>
@@ -2885,6 +3454,7 @@
                 id="close-checkout-modal-button"
                 class="modal__close"
                 aria-label="Cerrar ventana"
+                data-i18n-aria-label="cart.simulationClose"
             >
                 ×
             </button>
@@ -2898,11 +3468,16 @@
                     🎓
                 </span>
 
-                <h2 id="checkout-modal-title">
+                <h2
+                    id="checkout-modal-title"
+                    data-i18n="cart.simulationTitle"
+                >
                     Compra simulada
                 </h2>
 
-                <p>
+                <p
+                    data-i18n="cart.simulationDescription"
+                >
                     Esta tienda fue creada como proyecto educativo.
                     No se procesará ningún pago ni se enviará información.
                 </p>
@@ -2911,6 +3486,7 @@
                     type="button"
                     id="accept-checkout-message-button"
                     class="primary-button"
+                    data-i18n="cart.simulationAccept"
                 >
                     Entendido
                 </button>
@@ -2943,7 +3519,9 @@
         id="back-to-top-button"
         class="back-to-top-button"
         aria-label="Volver al inicio"
+        data-i18n-aria-label="common.backToTopLabel"
         title="Volver arriba"
+        data-i18n-title="footer.backToTop"
         hidden
     >
         ↑
@@ -2955,16 +3533,27 @@
          El orden es importante.
     =================================================== -->
 
+    <script src="js/translations.js"></script>
+
     <script src="js/products.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/favorites.js"></script>
+
+    <script
+        type="module"
+        src="js/cart.js"
+    ></script>
+
+    <script
+        type="module"
+        src="js/favorites.js"
+    ></script>
+    
     <script src="js/compare.js"></script>
     <script src="js/script.js"></script>
 
     <script
         type="module"
         src="js/auth.js"
-></script>
+    ></script>
 
 </body>
 </html>

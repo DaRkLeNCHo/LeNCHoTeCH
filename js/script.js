@@ -20,12 +20,14 @@ const LeNCHoTeCHState = {
         subcategories: [],
         brands: [],
         availability: "all",
-        maxPrice: Infinity
+        maxPrice: Infinity,
+        offersOnly: false
     },
 
     sort: "featured",
     activeModal: null,
-    activeDrawer: null
+    activeDrawer: null,
+    quickViewProductId: null
 };
 
 
@@ -76,6 +78,10 @@ function cacheDOMElements() {
         ".empty-state"
     );
 
+    DOM.emptyStateResetButton = selectFirst(
+        "#empty-state-reset-button"
+    );
+
     DOM.resultsText = selectFirst(
         "#results-text",
         "#product-results-text",
@@ -115,6 +121,24 @@ function cacheDOMElements() {
         "#theme-button",
         "[data-theme-toggle]"
     );
+
+    DOM.languageButton = selectFirst(
+        "#language-button"
+    );
+
+    DOM.languageMenu = selectFirst(
+        "#language-menu"
+    );
+
+    DOM.languageLabel = selectFirst(
+        "#language-button-label"
+    );
+
+    DOM.languageOptions = [
+        ...document.querySelectorAll(
+            ".language-menu__option"
+        )
+    ];
 
     DOM.themeIcon = selectFirst(
         "#theme-icon",
@@ -158,6 +182,7 @@ function cacheDOMElements() {
     );
 
     DOM.clearFiltersButton = selectFirst(
+        "#reset-filters-button",
         "#clear-filters-button",
         "[data-clear-filters]"
     );
@@ -185,9 +210,8 @@ function cacheDOMElements() {
         "[data-brand-filters]"
     );
 
-    DOM.availabilityFilterContainer = selectFirst(
-        "#availability-filter-options",
-        "[data-availability-filters]"
+    DOM.inStockFilter = selectFirst(
+        "#in-stock-filter"
     );
 
     DOM.priceRange = selectFirst(
@@ -259,6 +283,10 @@ function cacheDOMElements() {
         ".back-to-top-button"
     );
 
+    DOM.footerBackToTopLink = selectFirst(
+        "#footer-back-to-top-link"
+    );
+
     DOM.logoImage = selectFirst(
         "#brand-logo",
         ".brand__logo"
@@ -276,6 +304,10 @@ function cacheDOMElements() {
 
     DOM.offersButton = selectFirst(
         "#offers-navigation-button"
+    );
+
+    DOM.footerOffersButton = selectFirst(
+        "#footer-offers-button"
     );
 }
 
@@ -389,26 +421,59 @@ function findProductById(productId) {
  * @returns {string}
  */
 function getSearchableProductText(product) {
-    const utils = getProductUtils();
+    const utils =
+        getProductUtils();
 
-    if (typeof utils.getProductSearchText === "function") {
-        return utils.getProductSearchText(product);
-    }
+    const originalSearchText =
+        typeof utils
+            .getProductSearchText ===
+            "function"
+            ? utils.getProductSearchText(
+                product
+            )
+            : "";
 
-    const specifications = Object.entries(
-        product.specifications || {}
-    )
-        .map(([key, value]) => `${key} ${value}`)
-        .join(" ");
+    const translatedSpecifications =
+        Object.entries(
+            product.specifications || {}
+        )
+            .map(
+                ([key, value]) =>
+                    `${
+                        getTranslatedSpecificationName(
+                            key
+                        )
+                    } ${
+                        getTranslatedSpecificationValue(
+                            value
+                        )
+                    }`
+            )
+            .join(" ");
 
     return normalizeText(
         [
-            product.name,
+            originalSearchText,
+
+            getTranslatedProductName(
+                product
+            ),
+
             product.brand,
-            product.category,
-            product.subcategory,
-            product.description,
-            specifications
+
+            getTranslatedCategoryName(
+                product.category
+            ),
+
+            getTranslatedSubcategoryName(
+                product.subcategory
+            ),
+
+            getTranslatedProductDescription(
+                product
+            ),
+
+            translatedSpecifications
         ].join(" ")
     );
 }
@@ -632,11 +697,19 @@ function createQuickSpecificationsHTML(product) {
             ([label, value]) => `
                 <div class="quick-spec">
                     <span class="quick-spec__label">
-                        ${escapeHTML(label)}
+                        ${escapeHTML(
+                            getTranslatedSpecificationName(
+                                label
+                            )
+                        )}
                     </span>
 
                     <strong class="quick-spec__value">
-                        ${escapeHTML(value)}
+                        ${escapeHTML(
+                            getTranslatedSpecificationValue(
+                                value
+                            )
+                        )}
                     </strong>
                 </div>
             `
@@ -652,25 +725,49 @@ function createQuickSpecificationsHTML(product) {
  * @returns {{className: string, text: string}}
  */
 function getStockInformation(product) {
-    const stock = Number(product.stock) || 0;
+    const stock =
+        Number(product.stock) || 0;
 
     if (stock <= 0) {
         return {
-            className: "product-card__stock--out",
-            text: "Producto agotado"
+            className:
+                "product-card__stock--out",
+
+            text:
+                getAppTranslation(
+                    "productCard.outOfStock",
+                    "Producto agotado"
+                )
         };
     }
 
     if (stock <= 5) {
         return {
-            className: "product-card__stock--low",
-            text: `Solo quedan ${stock}`
+            className:
+                "product-card__stock--low",
+
+            text:
+                getAppTranslationWithVariables(
+                    "productCard.lowStock",
+                    "Solo quedan {stock}",
+                    {
+                        stock
+                    }
+                )
         };
     }
 
     return {
         className: "",
-        text: `${stock} disponibles`
+
+        text:
+            getAppTranslationWithVariables(
+                "productCard.availableStock",
+                "{stock} disponibles",
+                {
+                    stock
+                }
+            )
     };
 }
 
@@ -682,11 +779,25 @@ function getStockInformation(product) {
  * @returns {string}
  */
 function createProductCardHTML(product) {
-    const stockInformation = getStockInformation(product);
-    const hasOldPrice =
-        Number(product.oldPrice) > Number(product.price);
+    const stockInformation =
+        getStockInformation(product);
 
-    const badgeHTML = product.badge
+    const visibleProductName =
+        getTranslatedProductName(product);
+
+    const visibleProductDescription =
+        getTranslatedProductDescription(
+            product
+        );
+
+    const visibleProductBadge =
+        getTranslatedProductBadge(product);
+
+    const hasOldPrice =
+        Number(product.oldPrice) >
+        Number(product.price);
+
+    const badgeHTML = visibleProductBadge
         ? `
             <span
                 class="product-card__badge ${
@@ -697,7 +808,7 @@ function createProductCardHTML(product) {
                         : ""
                 }"
             >
-                ${escapeHTML(product.badge)}
+                ${escapeHTML(visibleProductBadge)}
             </span>
         `
         : "";
@@ -711,7 +822,14 @@ function createProductCardHTML(product) {
         : "";
 
     const imageAlternative =
-        `${product.name} de la marca ${product.brand}`;
+        getAppTranslationWithVariables(
+            "productCard.imageAlternative",
+            "{name} de la marca {brand}",
+            {
+                name: visibleProductName,
+                brand: product.brand
+            }
+        );
 
     return `
         <article
@@ -727,9 +845,22 @@ function createProductCardHTML(product) {
                 type="button"
                 data-action="toggle-favorite"
                 data-product-id="${product.id}"
-                aria-label="Agregar ${escapeHTML(product.name)} a favoritos"
+                aria-label="${escapeHTML(
+                    getAppTranslationWithVariables(
+                        "productCard.addFavoriteLabel",
+                        "Agregar {name} a favoritos",
+                        {
+                            name: visibleProductName
+                        }
+                    )
+                )}"
                 aria-pressed="false"
-                title="Agregar a favoritos"
+                title="${escapeHTML(
+                    getAppTranslation(
+                        "productCard.addFavoriteTitle",
+                        "Agregar a favoritos"
+                    )
+                )}"
             >
                 ♡
             </button>
@@ -739,7 +870,9 @@ function createProductCardHTML(product) {
                     class="product-card__image"
                     src="${escapeHTML(product.image)}"
                     alt="${escapeHTML(imageAlternative)}"
-                    data-product-name="${escapeHTML(product.name)}"
+                    data-product-name="${escapeHTML(
+                        visibleProductName
+                    )}"
                     loading="lazy"
                 >
 
@@ -750,22 +883,42 @@ function createProductCardHTML(product) {
 
             <div class="product-card__content">
                 <span class="product-card__category">
-                    ${escapeHTML(product.category)}
+                    ${escapeHTML(
+                        getTranslatedCategoryName(
+                            product.category
+                        )
+                    )}
                     ·
-                    ${escapeHTML(product.subcategory)}
+                    ${escapeHTML(
+                        getTranslatedSubcategoryName(
+                            product.subcategory
+                        )
+                    )}
                 </span>
 
                 <h3 class="product-card__name">
-                    ${escapeHTML(product.name)}
+                    ${escapeHTML(
+                        visibleProductName
+                    )}
                 </h3>
 
                 <p class="product-card__description">
-                    ${escapeHTML(product.description)}
+                    ${escapeHTML(
+                        visibleProductDescription
+                    )}
                 </p>
 
                 <div
                     class="product-card__rating-row"
-                    aria-label="Valoración de ${product.rating} de 5"
+                    aria-label="${escapeHTML(
+                        getAppTranslationWithVariables(
+                            "productCard.ratingLabel",
+                            "Valoración de {rating} de 5",
+                            {
+                                rating: product.rating
+                            }
+                        )
+                    )}"
                 >
                     <span
                         class="product-card__stars"
@@ -804,7 +957,12 @@ function createProductCardHTML(product) {
                         data-action="quick-view"
                         data-product-id="${product.id}"
                     >
-                        Vista rápida
+                        ${escapeHTML(
+                            getAppTranslation(
+                                "productCard.quickView",
+                                "Vista rápida"
+                            )
+                        )}
                     </button>
 
                     <button
@@ -816,8 +974,18 @@ function createProductCardHTML(product) {
                     >
                         ${
                             product.stock <= 0
-                                ? "Agotado"
-                                : "Añadir"
+                                ? escapeHTML(
+                                    getAppTranslation(
+                                        "productCard.soldOut",
+                                        "Agotado"
+                                    )
+                                )
+                                : escapeHTML(
+                                    getAppTranslation(
+                                        "productCard.add",
+                                        "Añadir"
+                                    )
+                                )
                         }
                     </button>
                 </div>
@@ -829,7 +997,14 @@ function createProductCardHTML(product) {
                         data-product-id="${product.id}"
                     >
 
-                    <span>Comparar producto</span>
+                    <span>
+                        ${escapeHTML(
+                            getAppTranslation(
+                                "productCard.compare",
+                                "Comparar producto"
+                            )
+                        )}
+                    </span>
                 </label>
             </div>
         </article>
@@ -940,12 +1115,31 @@ function updateResultsText(amount) {
         return;
     }
 
-    const total = LeNCHoTeCHState.products.length;
+    const total =
+        LeNCHoTeCHState.products.length;
+
+    if (amount === total) {
+        DOM.resultsText.textContent =
+            getAppTranslationWithVariables(
+                "catalog.allProductsAvailable",
+                "{total} productos disponibles",
+                {
+                    total
+                }
+            );
+
+        return;
+    }
 
     DOM.resultsText.textContent =
-        amount === total
-            ? `${total} productos disponibles`
-            : `${amount} de ${total} productos`;
+        getAppTranslationWithVariables(
+            "catalog.partialProducts",
+            "{amount} de {total} productos",
+            {
+                amount,
+                total
+            }
+        );
 }
 
 
@@ -994,8 +1188,7 @@ function createFilterOptionHTML(configuration) {
             <input
                 id="${inputId}"
                 type="${
-                    type === "category" ||
-                    type === "availability"
+                    type === "category"
                         ? "radio"
                         : "checkbox"
                 }"
@@ -1038,9 +1231,14 @@ function renderCategoryFilters() {
     const allOption = createFilterOptionHTML({
         type: "category",
         value: "all",
-        label: "Todas las categorías",
+        label: getAppTranslation(
+            "catalog.allCategories",
+            "Todas las categorías"
+        ),
         count: LeNCHoTeCHState.products.length,
-        checked: true
+        checked:
+            LeNCHoTeCHState.filters.category ===
+            "all"
     });
 
     const categoryOptions = categories
@@ -1049,11 +1247,17 @@ function renderCategoryFilters() {
                 createFilterOptionHTML({
                     type: "category",
                     value: category,
-                    label: category,
+                    label:
+                        getTranslatedCategoryName(
+                            category
+                        ),
                     count: countProductsByProperty(
                         "category",
                         category
-                    )
+                    ),
+                    checked:
+                        LeNCHoTeCHState.filters.category ===
+                        category
                 })
         )
         .join("");
@@ -1104,7 +1308,10 @@ function renderSubcategoryFilters() {
                 return createFilterOptionHTML({
                     type: "subcategory",
                     value: subcategory,
-                    label: subcategory,
+                    label:
+                        getTranslatedSubcategoryName(
+                            subcategory
+                        ),
                     count,
                     checked
                 });
@@ -1114,7 +1321,12 @@ function renderSubcategoryFilters() {
     if (subcategories.length === 0) {
         DOM.subcategoryFilterContainer.innerHTML = `
             <p class="filter-empty-message">
-                No hay subcategorías disponibles.
+                ${escapeHTML(
+                    getAppTranslation(
+                        "catalog.noSubcategories",
+                        "No hay subcategorías disponibles."
+                    )
+                )}
             </p>
         `;
     }
@@ -1153,64 +1365,6 @@ function renderBrandFilters() {
                     })
             )
             .join("");
-}
-
-
-/**
- * Genera el filtro de disponibilidad.
- */
-function renderAvailabilityFilters() {
-    if (!DOM.availabilityFilterContainer) {
-        return;
-    }
-
-    const availableCount =
-        LeNCHoTeCHState.products.filter(
-            product => product.stock > 0
-        ).length;
-
-    const lowStockCount =
-        LeNCHoTeCHState.products.filter(
-            product =>
-                product.stock > 0 &&
-                product.stock <= 5
-        ).length;
-
-    const outOfStockCount =
-        LeNCHoTeCHState.products.filter(
-            product => product.stock <= 0
-        ).length;
-
-    DOM.availabilityFilterContainer.innerHTML = [
-        {
-            value: "all",
-            label: "Todos",
-            count: LeNCHoTeCHState.products.length,
-            checked: true
-        },
-        {
-            value: "available",
-            label: "Disponibles",
-            count: availableCount
-        },
-        {
-            value: "low",
-            label: "Pocas unidades",
-            count: lowStockCount
-        },
-        {
-            value: "out",
-            label: "Agotados",
-            count: outOfStockCount
-        }
-    ]
-        .map(option =>
-            createFilterOptionHTML({
-                type: "availability",
-                ...option
-            })
-        )
-        .join("");
 }
 
 
@@ -1263,7 +1417,6 @@ function initializeFilters() {
     renderCategoryFilters();
     renderSubcategoryFilters();
     renderBrandFilters();
-    renderAvailabilityFilters();
     initializePriceFilter();
 }
 
@@ -1285,7 +1438,8 @@ function productMatchesFilters(product) {
         subcategories,
         brands,
         availability,
-        maxPrice
+        maxPrice,
+        offersOnly
     } = LeNCHoTeCHState.filters;
 
     if (search) {
@@ -1363,15 +1517,11 @@ function productMatchesFilters(product) {
     }
 
     if (
-        availability === "low" &&
-        !(product.stock > 0 && product.stock <= 5)
-    ) {
-        return false;
-    }
-
-    if (
-        availability === "out" &&
-        product.stock > 0
+        offersOnly &&
+        !(
+            Number(product.oldPrice) >
+            Number(product.price)
+        )
     ) {
         return false;
     }
@@ -1389,34 +1539,39 @@ function productMatchesFilters(product) {
 function sortProducts(productList) {
     const sortedProducts = [...productList];
 
+    const currentLanguage =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
     switch (LeNCHoTeCHState.sort) {
-        case "price-low":
+        case "price-asc":
             sortedProducts.sort(
                 (first, second) =>
                     first.price - second.price
             );
             break;
 
-        case "price-high":
+        case "price-desc":
             sortedProducts.sort(
                 (first, second) =>
                     second.price - first.price
             );
             break;
 
-        case "rating":
+        case "rating-desc":
             sortedProducts.sort(
                 (first, second) =>
                     second.rating - first.rating
             );
             break;
 
-        case "name":
+        case "name-asc":
             sortedProducts.sort(
                 (first, second) =>
                     first.name.localeCompare(
                         second.name,
-                        "es",
+                        currentLanguage,
                         {
                             sensitivity: "base"
                         }
@@ -1424,10 +1579,16 @@ function sortProducts(productList) {
             );
             break;
 
-        case "newest":
+        case "name-desc":
             sortedProducts.sort(
                 (first, second) =>
-                    second.id - first.id
+                    second.name.localeCompare(
+                        first.name,
+                        currentLanguage,
+                        {
+                            sensitivity: "base"
+                        }
+                    )
             );
             break;
 
@@ -1485,10 +1646,17 @@ function clearAllFilters() {
         availability: "all",
         maxPrice: DOM.priceRange
             ? Number(DOM.priceRange.max)
-            : Infinity
+            : Infinity,
+        offersOnly: false
     };
 
     LeNCHoTeCHState.sort = "featured";
+
+    if (DOM.offersButton) {
+        DOM.offersButton.classList.remove(
+            "active"
+        );
+    }
 
     if (DOM.searchInput) {
         DOM.searchInput.value = "";
@@ -1496,6 +1664,10 @@ function clearAllFilters() {
 
     if (DOM.sortSelect) {
         DOM.sortSelect.value = "featured";
+    }
+
+    if (DOM.inStockFilter) {
+        DOM.inStockFilter.checked = false;
     }
 
     if (DOM.priceRange) {
@@ -1508,8 +1680,7 @@ function clearAllFilters() {
         .querySelectorAll("[data-filter-type]")
         .forEach(input => {
             if (
-                input.dataset.filterType === "category" ||
-                input.dataset.filterType === "availability"
+                input.dataset.filterType === "category"
             ) {
                 input.checked =
                     input.value === "all";
@@ -1523,8 +1694,14 @@ function clearAllFilters() {
     updateActiveCategoryCards();
 
     showToast(
-        "Filtros eliminados",
-        "Se están mostrando todos los productos.",
+        getAppTranslation(
+            "catalog.filtersClearedTitle",
+            "Filtros eliminados"
+        ),
+        getAppTranslation(
+            "catalog.filtersClearedMessage",
+            "Se están mostrando todos los productos."
+        ),
         "success"
     );
 }
@@ -1553,8 +1730,21 @@ function createActiveFilterChip(
             class="active-filter-chip"
             data-remove-filter="${escapeHTML(type)}"
             data-filter-value="${escapeHTML(value)}"
-            aria-label="Eliminar filtro ${escapeHTML(label)}"
-            title="Eliminar filtro"
+            aria-label="${escapeHTML(
+                getAppTranslationWithVariables(
+                    "catalog.removeFilterLabel",
+                    "Eliminar filtro {label}",
+                    {
+                        label
+                    }
+                )
+            )}"
+            title="${escapeHTML(
+                getAppTranslation(
+                    "catalog.removeFilter",
+                    "Eliminar filtro"
+                )
+            )}"
         >
             <span class="active-filter-chip__label">
                 ${escapeHTML(label)}
@@ -1582,6 +1772,21 @@ function renderActiveFilters() {
 
     const filterChips = [];
 
+    if (
+        LeNCHoTeCHState.filters.offersOnly
+    ) {
+        filterChips.push(
+            createActiveFilterChip(
+                "offers",
+                "true",
+                getAppTranslation(
+                    "catalog.offersFilter",
+                    "Ofertas"
+                )
+            )
+        );
+    }
+
     if (LeNCHoTeCHState.filters.search) {
         const searchLabel = DOM.searchInput
             ? DOM.searchInput.value.trim()
@@ -1591,7 +1796,13 @@ function renderActiveFilters() {
             createActiveFilterChip(
                 "search",
                 LeNCHoTeCHState.filters.search,
-                `Búsqueda: “${searchLabel}”`
+                getAppTranslationWithVariables(
+                    "catalog.searchFilter",
+                    "Búsqueda: “{search}”",
+                    {
+                        search: searchLabel
+                    }
+                )
             )
         );
     }
@@ -1599,13 +1810,23 @@ function renderActiveFilters() {
     if (
         LeNCHoTeCHState.filters.category !== "all"
     ) {
+        const selectedCategory =
+            LeNCHoTeCHState.filters.category;
+
         filterChips.push(
             createActiveFilterChip(
                 "category",
-                LeNCHoTeCHState.filters.category,
-                `Categoría: ${
-                    LeNCHoTeCHState.filters.category
-                }`
+                selectedCategory,
+                getAppTranslationWithVariables(
+                    "catalog.categoryFilter",
+                    "Categoría: {category}",
+                    {
+                        category:
+                            getTranslatedCategoryName(
+                                selectedCategory
+                            )
+                    }
+                )
             )
         );
     }
@@ -1616,7 +1837,9 @@ function renderActiveFilters() {
                 createActiveFilterChip(
                     "subcategory",
                     subcategory,
-                    subcategory
+                    getTranslatedSubcategoryName(
+                        subcategory
+                    )
                 )
             );
         });
@@ -1633,22 +1856,17 @@ function renderActiveFilters() {
         });
 
     if (
-        LeNCHoTeCHState.filters.availability !== "all"
+        LeNCHoTeCHState.filters.availability ===
+        "available"
     ) {
-        const availabilityLabels = {
-            available: "Disponibles",
-            low: "Pocas unidades",
-            out: "Agotados"
-        };
-
-        const availability =
-            LeNCHoTeCHState.filters.availability;
-
         filterChips.push(
             createActiveFilterChip(
                 "availability",
-                availability,
-                availabilityLabels[availability]
+                "available",
+                getAppTranslation(
+                    "catalog.inStockOnly",
+                    "Solo productos disponibles"
+                )
             )
         );
     }
@@ -1664,23 +1882,38 @@ function renderActiveFilters() {
                 String(
                     LeNCHoTeCHState.filters.maxPrice
                 ),
-                `Hasta ${formatProductPrice(
-                    LeNCHoTeCHState.filters.maxPrice
-                )}`
+                getAppTranslationWithVariables(
+                    "catalog.maximumPriceFilter",
+                    "Hasta {price}",
+                    {
+                        price: formatProductPrice(
+                            LeNCHoTeCHState.filters
+                                .maxPrice
+                        )
+                    }
+                ) 
             )
         );
     }
 
     if (filterChips.length === 0) {
-        DOM.activeFilters.innerHTML =
-            "No hay filtros activos.";
+        DOM.activeFilters.textContent =
+            getAppTranslation(
+                "catalog.noActiveFilters",
+                "No hay filtros activos."
+            );
 
         return;
     }
 
     DOM.activeFilters.innerHTML = `
         <span class="active-filters__title">
-            Filtros activos:
+            ${escapeHTML(
+                getAppTranslation(
+                    "catalog.activeFiltersTitle",
+                    "Filtros activos:"
+                )
+            )}
         </span>
 
         <div class="active-filters__list">
@@ -1699,10 +1932,7 @@ function removeActiveFilter(
     filterType,
     filterValue
 ) {
-    if (DOM.offersButton) {
-        DOM.offersButton.classList.remove("active");
-    }
-
+    
     if (filterType === "search") {
         LeNCHoTeCHState.filters.search = "";
 
@@ -1773,14 +2003,9 @@ function removeActiveFilter(
         LeNCHoTeCHState.filters.availability =
             "all";
 
-        document
-            .querySelectorAll(
-                '[data-filter-type="availability"]'
-            )
-            .forEach(input => {
-                input.checked =
-                    input.value === "all";
-            });
+        if (DOM.inStockFilter) {
+            DOM.inStockFilter.checked = false;
+        }
     }
 
     if (filterType === "price") {
@@ -1796,6 +2021,17 @@ function removeActiveFilter(
                 DOM.priceRange.max;
 
             updatePriceRangeText();
+        }
+    }
+
+    if (filterType === "offers") {
+        LeNCHoTeCHState.filters.offersOnly =
+            false;
+
+        if (DOM.offersButton) {
+            DOM.offersButton.classList.remove(
+                "active"
+            );
         }
     }
 
@@ -1845,12 +2081,8 @@ function handleFilterInputChange(input) {
             selectedBrands;
     }
 
-    if (filterType === "availability") {
-        LeNCHoTeCHState.filters.availability =
-            value;
-    }
-
     applyProductFilters();
+    scrollToCatalog();
 }
 
 
@@ -1950,6 +2182,41 @@ function updateActiveCategoryCards() {
 }
 
 /**
+ * Traduce los contadores visibles de
+ * las tarjetas de categorías.
+ */
+function updateCategoryCardCounts() {
+    document
+        .querySelectorAll(
+            ".category-card__count[data-category-count]"
+        )
+        .forEach(element => {
+            const count =
+                Number(
+                    element.dataset.categoryCount
+                );
+
+            if (!Number.isFinite(count)) {
+                return;
+            }
+
+            element.textContent =
+                count === 1
+                    ? getAppTranslation(
+                        "categoryCards.productsSingle",
+                        "1 producto"
+                    )
+                    : getAppTranslationWithVariables(
+                        "categoryCards.productsPlural",
+                        "{count} productos",
+                        {
+                            count
+                        }
+                    );
+        });
+}
+
+/**
  * Desplaza la pantalla hasta el catálogo.
  */
 function scrollToCatalog() {
@@ -1968,19 +2235,8 @@ function scrollToCatalog() {
 }
 
 function showOffers() {
-    const offeredProducts =
-        LeNCHoTeCHState.products.filter(
-            product =>
-                Number(product.oldPrice) >
-                Number(product.price)
-        );
-
-    LeNCHoTeCHState.filteredProducts =
-        sortProducts(offeredProducts);
-
-    renderProducts(
-        LeNCHoTeCHState.filteredProducts
-    );
+    LeNCHoTeCHState.filters.offersOnly =
+        true;
 
     document
         .querySelectorAll("[data-navigation]")
@@ -1989,16 +2245,24 @@ function showOffers() {
         });
 
     if (DOM.offersButton) {
-        DOM.offersButton.classList.add("active");
+        DOM.offersButton.classList.add(
+            "active"
+        );
     }
 
+    applyProductFilters();
     scrollToCatalog();
     closeNavigationMenus();
 }
 
 function disableOffersMode() {
+    LeNCHoTeCHState.filters.offersOnly =
+        false;
+
     if (DOM.offersButton) {
-        DOM.offersButton.classList.remove("active");
+        DOM.offersButton.classList.remove(
+            "active"
+        );
     }
 
     applyProductFilters();
@@ -2021,8 +2285,21 @@ function createFullSpecificationsHTML(product) {
         .map(
             ([label, value]) => `
                 <div class="quick-view__spec">
-                    <span>${escapeHTML(label)}</span>
-                    <strong>${escapeHTML(value)}</strong>
+                    <span>
+                        ${escapeHTML(
+                            getTranslatedSpecificationName(
+                                label
+                            )
+                        )}
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(
+                            getTranslatedSpecificationValue(
+                                value
+                            )
+                        )}
+                    </strong>
                 </div>
             `
         )
@@ -2042,6 +2319,17 @@ function openQuickView(productId) {
         return;
     }
 
+    const visibleProductName =
+        getTranslatedProductName(product);
+
+    const visibleProductDescription =
+        getTranslatedProductDescription(
+            product
+        );
+
+    LeNCHoTeCHState.quickViewProductId =
+        product.id;
+
     const contentTarget =
         DOM.quickViewContent ||
         DOM.quickViewModal.querySelector(
@@ -2056,34 +2344,39 @@ function openQuickView(productId) {
         getStockInformation(product);
 
     const productHTML = `
-        <button
-            class="modal__close"
-            type="button"
-            data-close-modal
-            aria-label="Cerrar vista rápida"
-        >
-            ×
-        </button>
-
         <div class="quick-view-layout">
             <div class="quick-view__image-wrapper">
                 <img
                     class="quick-view__image"
                     src="${escapeHTML(product.image)}"
-                    alt="${escapeHTML(product.name)}"
-                    data-product-name="${escapeHTML(product.name)}"
+                    alt="${escapeHTML(
+                        visibleProductName
+                    )}"
+                    data-product-name="${escapeHTML(
+                        visibleProductName
+                    )}"
                 >
             </div>
 
             <div class="quick-view__information">
                 <span class="quick-view__category">
-                    ${escapeHTML(product.category)}
+                    ${escapeHTML(
+                        getTranslatedCategoryName(
+                            product.category
+                        )
+                    )}
                     ·
-                    ${escapeHTML(product.subcategory)}
+                    ${escapeHTML(
+                        getTranslatedSubcategoryName(
+                            product.subcategory
+                        )
+                    )}
                 </span>
 
                 <h2 class="quick-view__title">
-                    ${escapeHTML(product.name)}
+                    ${escapeHTML(
+                        visibleProductName
+                    )}
                 </h2>
 
                 <div class="product-card__rating-row">
@@ -2096,12 +2389,24 @@ function openQuickView(productId) {
 
                     <span class="product-card__reviews">
                         ${Number(product.rating).toFixed(1)}
-                        (${Number(product.reviews) || 0} reseñas)
+                        (${escapeHTML(
+                            getAppTranslationWithVariables(
+                                "quickView.reviews",
+                                "{count} reseñas",
+                                {
+                                    count:
+                                        Number(product.reviews) ||
+                                        0
+                                }
+                            )
+                        )})
                     </span>
                 </div>
 
                 <p class="quick-view__description">
-                    ${escapeHTML(product.description)}
+                    ${escapeHTML(
+                        visibleProductDescription
+                    )}
                 </p>
 
                 <strong class="quick-view__price">
@@ -2127,8 +2432,38 @@ function openQuickView(productId) {
                         type="button"
                         data-action="toggle-favorite"
                         data-product-id="${product.id}"
+                        aria-label="${escapeHTML(
+                            getAppTranslationWithVariables(
+                                "quickView.favoriteLabel",
+                                "Agregar {name} a favoritos",
+                                {
+                                    name: visibleProductName
+                                }
+                            )
+                        )}"
+                        aria-pressed="false"
+                        title="${escapeHTML(
+                            getAppTranslation(
+                                "favorites.addTitle",
+                                "Añadir a favoritos"
+                            )
+                        )}"
                     >
-                        ♡ Favorito
+                        <span
+                            data-favorite-icon
+                            aria-hidden="true"
+                        >
+                            ♡
+                        </span>
+
+                        <span data-favorite-text>
+                            ${escapeHTML(
+                                getAppTranslation(
+                                    "quickView.favorite",
+                                    "Favorito"
+                                )
+                            )}
+                        </span>
                     </button>
 
                     <button
@@ -2140,8 +2475,18 @@ function openQuickView(productId) {
                     >
                         ${
                             product.stock <= 0
-                                ? "Producto agotado"
-                                : "Añadir al carrito"
+                                ? escapeHTML(
+                                    getAppTranslation(
+                                        "quickView.soldOut",
+                                        "Producto agotado"
+                                    )
+                                )
+                                : escapeHTML(
+                                    getAppTranslation(
+                                        "quickView.addToCart",
+                                        "Añadir al carrito"
+                                    )
+                                )
                         }
                     </button>
                 </div>
@@ -2150,6 +2495,30 @@ function openQuickView(productId) {
     `;
 
     contentTarget.innerHTML = productHTML;
+
+    if (
+        window.LENCHOTECH_FAVORITES &&
+        typeof window
+            .LENCHOTECH_FAVORITES
+            .synchronize ===
+            "function"
+    ) {
+        window
+            .LENCHOTECH_FAVORITES
+            .synchronize();
+    }
+
+    if (
+        window.LENCHOTECH_CART &&
+        typeof window
+            .LENCHOTECH_CART
+            .synchronize ===
+            "function"
+    ) {
+        window
+            .LENCHOTECH_CART
+            .synchronize();
+    }
 
     openModal(DOM.quickViewModal);
 }
@@ -2351,6 +2720,9 @@ function updateBodyScrollLock() {
 const THEME_STORAGE_KEY =
     "lenchotech-theme";
 
+const LANGUAGE_STORAGE_KEY =
+    "lenchotech-language";
+
 
 /**
  * Obtiene el tema guardado.
@@ -2375,6 +2747,540 @@ function getInitialTheme() {
         : "light";
 }
 
+function getAppTranslation(
+    key,
+    fallback
+) {
+    const language =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
+    const translatedText =
+        window.LENCHOTECH_I18N
+            ?.getTranslation?.(
+                language,
+                key
+            );
+
+    return translatedText || fallback;
+}
+
+/**
+ * Obtiene una traducción y reemplaza variables
+ * como {total}, {amount} o {name}.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @param {Record<string, string|number>} variables
+ * @returns {string}
+ */
+function getAppTranslationWithVariables(
+    key,
+    fallback,
+    variables = {}
+) {
+    let translatedText =
+        getAppTranslation(
+            key,
+            fallback
+        );
+
+    Object.entries(variables).forEach(
+        ([variableName, variableValue]) => {
+            translatedText =
+                translatedText.replaceAll(
+                    `{${variableName}}`,
+                    String(variableValue)
+                );
+        }
+    );
+
+    return translatedText;
+}
+
+/**
+ * Devuelve el nombre visible de una categoría
+ * sin cambiar su identificador interno.
+ *
+ * @param {string} category
+ * @returns {string}
+ */
+function getTranslatedCategoryName(category) {
+    const translationKeys = {
+        Displays:
+            "categoryNames.displays",
+
+        Cables:
+            "categoryNames.cables",
+
+        RAM:
+            "categoryNames.ram",
+
+        Storage:
+            "categoryNames.storage",
+
+        Components:
+            "categoryNames.components",
+
+        "Power Supplies":
+            "categoryNames.powerSupplies",
+
+        Printers:
+            "categoryNames.printers",
+
+        Maintenance:
+            "categoryNames.maintenance"
+    };
+
+    const translationKey =
+        translationKeys[category];
+
+    if (!translationKey) {
+        return category;
+    }
+
+    return getAppTranslation(
+        translationKey,
+        category
+    );
+}
+
+/**
+ * Devuelve el nombre visible de una
+ * subcategoría sin cambiar su identificador.
+ *
+ * @param {string} subcategory
+ * @returns {string}
+ */
+function getTranslatedSubcategoryName(
+    subcategory
+) {
+    const translationKeys = {
+        Touchscreen:
+            "subcategoryNames.touchscreen",
+
+        Copper:
+            "subcategoryNames.copper",
+
+        Fiber:
+            "subcategoryNames.fiber",
+
+        Storage:
+            "subcategoryNames.storage",
+
+        Connectors:
+            "subcategoryNames.connectors",
+
+        "Expansion Cards":
+            "subcategoryNames.expansionCards",
+
+        Cooling:
+            "subcategoryNames.cooling",
+
+        "Power Supplies":
+            "subcategoryNames.powerSupplies",
+
+        Multifunction:
+            "subcategoryNames.multifunction",
+
+        "Maintenance Kits":
+            "subcategoryNames.maintenanceKits",
+
+        Removable:
+            "subcategoryNames.removable",
+
+        Optical:
+            "subcategoryNames.optical",
+
+        Ink:
+            "subcategoryNames.ink",
+
+        Toner:
+            "subcategoryNames.toner"
+    };
+
+    const translationKey =
+        translationKeys[subcategory];
+
+    if (!translationKey) {
+        return subcategory;
+    }
+
+    return getAppTranslation(
+        translationKey,
+        subcategory
+    );
+}
+
+/**
+ * Devuelve el nombre visible de una
+ * especificación sin modificar su clave original.
+ *
+ * @param {string} specificationName
+ * @returns {string}
+ */
+function getTranslatedSpecificationName(
+    specificationName
+) {
+    const translationKeys = {
+        ADF: "specificationNames.adf",
+        Altavoces: "specificationNames.speakers",
+        Altura: "specificationNames.height",
+        "Ancho de banda": "specificationNames.bandwidth",
+        Blindaje: "specificationNames.shielding",
+        Cableado: "specificationNames.cabling",
+        Caché: "specificationNames.cache",
+        Capacidad: "specificationNames.capacity",
+        Certificación: "specificationNames.certification",
+        Chipset: "specificationNames.chipset",
+        Color: "specificationNames.color",
+        Colores: "specificationNames.colors",
+        Compatibilidad: "specificationNames.compatibility",
+        Conectividad: "specificationNames.connectivity",
+        Conector: "specificationNames.connector",
+        Conectores: "specificationNames.connectors",
+        Conexiones: "specificationNames.connections",
+        Configuración: "specificationNames.configuration",
+        Contenido: "specificationNames.content",
+        "Corrección de errores":
+            "specificationNames.errorCorrection",
+        Curvatura: "specificationNames.curvature",
+        Datos: "specificationNames.data",
+        Dúplex: "specificationNames.duplex",
+        ECC: "specificationNames.ecc",
+        Entrada: "specificationNames.input",
+        Escritura: "specificationNames.write",
+        Formato: "specificationNames.format",
+        Frecuencia: "specificationNames.frequency",
+        "Fuente recomendada":
+            "specificationNames.recommendedPowerSupply",
+        Funciones: "specificationNames.functions",
+        GPU: "specificationNames.gpu",
+        Grabación: "specificationNames.recording",
+        HDR: "specificationNames.hdr",
+        Impedancia: "specificationNames.impedance",
+        "Impresión móvil":
+            "specificationNames.mobilePrinting",
+        Incluye: "specificationNames.includes",
+        Instalación: "specificationNames.installation",
+        Interfaz: "specificationNames.interface",
+        Latencia: "specificationNames.latency",
+        Lectura: "specificationNames.read",
+        Longitud: "specificationNames.length",
+        Material: "specificationNames.material",
+        Memoria: "specificationNames.memory",
+        Núcleo: "specificationNames.core",
+        Original: "specificationNames.original",
+        "Plug and Play":
+            "specificationNames.plugAndPlay",
+        Potencia: "specificationNames.power",
+        Protecciones: "specificationNames.protections",
+        Protección: "specificationNames.protection",
+        "Puntos táctiles":
+            "specificationNames.touchPoints",
+        "Ranuras M.2":
+            "specificationNames.m2Slots",
+        Rendimiento: "specificationNames.performance",
+        Resolución: "specificationNames.resolution",
+        "Resolución máxima":
+            "specificationNames.maximumResolution",
+        Salida: "specificationNames.output",
+        Salidas: "specificationNames.outputs",
+        Seguro: "specificationNames.secure",
+        Socket: "specificationNames.socket",
+        "Socket AMD": "specificationNames.amdSocket",
+        "Socket Intel": "specificationNames.intelSocket",
+        Tamaño: "specificationNames.size",
+        "Tamaño de papel":
+            "specificationNames.paperSize",
+        Tecnología: "specificationNames.technology",
+        "Tiempo de respuesta":
+            "specificationNames.responseTime",
+        Tipo: "specificationNames.type",
+        "Tipo de panel":
+            "specificationNames.panelType",
+        Uso: "specificationNames.use",
+        Velocidad: "specificationNames.speed",
+        Ventilador: "specificationNames.fan",
+        Ventiladores: "specificationNames.fans",
+        Versión: "specificationNames.version",
+        Voltaje: "specificationNames.voltage",
+        "Wi-Fi": "specificationNames.wifi"
+    };
+
+    const translationKey =
+        translationKeys[specificationName];
+
+    if (!translationKey) {
+        return specificationName;
+    }
+
+    return getAppTranslation(
+        translationKey,
+        specificationName
+    );
+}
+
+/**
+ * Traduce valores textuales comunes de las
+ * especificaciones. Los valores técnicos se
+ * mantienen intactos.
+ *
+ * @param {unknown} value
+ * @returns {string}
+ */
+function getTranslatedSpecificationValue(value) {
+    const originalValue =
+        String(value);
+
+    if (
+        document.documentElement.lang !==
+        "en"
+    ) {
+        return originalValue;
+    }
+
+    const exactTranslations = {
+        "A color": "Color",
+        "Aluminio": "Aluminum",
+        "Automático": "Automatic",
+        "Azul": "Blue",
+        "Compatible": "Compatible",
+        "Completamente modular": "Fully modular",
+        "Doble": "Double",
+        "Enfriamiento por aire": "Air cooling",
+        "Externo": "External",
+        "Fusor y rodillos": "Fuser and rollers",
+        "Hogar": "Home",
+        "Imprimir, copiar, escanear y fax":
+            "Print, copy, scan, and fax",
+        "Integrados": "Built-in",
+        "Kit de mantenimiento": "Maintenance kit",
+        "Láser": "Laser",
+        "Mantenimiento preventivo":
+            "Preventive maintenance",
+        "Manual": "Manual",
+        "Modelos Brother seleccionados":
+            "Selected Brother models",
+        "Monocromática": "Monochrome",
+        "Multimodo OM3": "OM3 multimode",
+        "Negro": "Black",
+        "Negro, cian, magenta y amarillo":
+            "Black, cyan, magenta, and yellow",
+        "No": "No",
+        "Nylon trenzado": "Braided nylon",
+        "Recto a recto": "Straight-through",
+        "Retráctil": "Retractable",
+        "USB-C a USB-C": "USB-C to USB-C",
+        "LC a LC":
+            "LC to LC",
+
+        "4K a 120 Hz":
+            "4K at 120 Hz",
+
+        "75 ohmios":
+            "75 ohms",
+
+        "HP LaserJet seleccionadas":
+            "Selected HP LaserJet models",
+
+        "HP OfficeJet seleccionadas":
+            "Selected HP OfficeJet models",
+        "Servidor": "Server",
+        "Sí": "Yes",
+        "Técnica": "Technical",
+        "Tinta": "Ink",
+       "Tóner": "Toner",
+
+        "TV, cable y satélite":
+            "TV, cable, and satellite",
+
+        "Windows y macOS":
+            "Windows and macOS",
+
+        "HDMI y DisplayPort":
+            "HDMI and DisplayPort",
+
+        "HDMI, DisplayPort y DVI":
+            "HDMI, DisplayPort, and DVI",
+
+        "USB-C, HDMI y DisplayPort":
+            "USB-C, HDMI, and DisplayPort",
+
+        "Wi-Fi y USB":
+            "Wi-Fi and USB",
+
+        "Wi-Fi, Ethernet y USB":
+            "Wi-Fi, Ethernet, and USB",
+
+        "CD y DVD":
+            "CD and DVD",
+
+        "HDD y SSD":
+            "HDD and SSD",
+
+        "OVP, OCP y SCP":
+            "OVP, OCP, and SCP",
+
+        "IPS táctil":
+            "Touchscreen IPS"
+        };
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            exactTranslations,
+            originalValue
+        )
+    ) {
+        return exactTranslations[
+            originalValue
+        ];
+    }
+
+    return originalValue
+        .replace(
+            /^Hasta\s+/,
+            "Up to "
+        )
+        .replace(
+            /^Aproximadamente\s+/,
+            "Approximately "
+        )
+        .replace(
+            /(\d+(?:\.\d+)?)\s+pulgadas\b/g,
+            "$1 inches"
+        )
+        .replace(
+            /(\d+(?:\.\d+)?)\s+pies\b/g,
+            "$1 ft"
+        )
+        .replace(
+            /(\d+(?:\.\d+)?)\s+metros\b/g,
+            "$1 meters"
+        )
+        .replace(
+            /(\d+)\s+páginas\b/g,
+            "$1 pages"
+        )
+        .replace(
+            /(\d+)\s+cartuchos\b/g,
+            "$1 cartridges"
+        );
+}
+
+/**
+ * Devuelve el nombre visible de un producto.
+ *
+ * Solo existen traducciones específicas para
+ * nombres que contienen texto dependiente
+ * del idioma.
+ *
+ * @param {object} product
+ * @returns {string}
+ */
+function getTranslatedProductName(product) {
+    if (!product) {
+        return "";
+    }
+
+    return getAppTranslation(
+        `productContent.names.${product.id}`,
+        product.name
+    );
+}
+
+/**
+ * Devuelve la descripción traducida de un producto.
+ *
+ * @param {object} product
+ * @returns {string}
+ */
+function getTranslatedProductDescription(
+    product
+) {
+    if (!product) {
+        return "";
+    }
+
+    return getAppTranslation(
+        `productContent.descriptions.${product.id}`,
+        product.description
+    );
+}
+
+/**
+ * Devuelve el texto traducido de un badge.
+ *
+ * @param {object} product
+ * @returns {string}
+ */
+function getTranslatedProductBadge(product) {
+    if (!product?.badge) {
+        return "";
+    }
+
+    const badgeTranslationKeys = {
+        Oferta:
+            "productContent.badges.sale",
+
+        Popular:
+            "productContent.badges.popular",
+
+        Premium:
+            "productContent.badges.premium",
+
+        Nuevo:
+            "productContent.badges.new",
+
+        "8K":
+            "productContent.badges.eightK",
+
+        Laptop:
+            "productContent.badges.laptop",
+
+        Servidor:
+            "productContent.badges.server",
+
+        "Alto rendimiento":
+            "productContent.badges.highPerformance",
+
+        Gaming:
+            "productContent.badges.gaming",
+
+        Silencioso:
+            "productContent.badges.quiet",
+
+        "80 Plus Gold":
+            "productContent.badges.gold",
+
+        Hogar:
+            "productContent.badges.home",
+
+        Multifunción:
+            "productContent.badges.multifunction",
+
+        Paquete:
+            "productContent.badges.pack",
+
+        Servicio:
+            "productContent.badges.service"
+    };
+
+    const translationKey =
+        badgeTranslationKeys[
+            product.badge
+        ];
+
+    if (!translationKey) {
+        return product.badge;
+    }
+
+    return getAppTranslation(
+        translationKey,
+        product.badge
+    );
+}
 
 /**
  * Aplica un tema.
@@ -2402,9 +3308,29 @@ function applyTheme(theme) {
             String(darkTheme)
         );
 
-        DOM.themeButton.title = darkTheme
-            ? "Cambiar al tema claro"
-            : "Cambiar al tema oscuro";
+        DOM.themeButton.title =
+            darkTheme
+                ? getAppTranslation(
+                    "header.themeToLight",
+                    "Cambiar al tema claro"
+                )
+                : getAppTranslation(
+                    "header.themeToDark",
+                    "Cambiar al tema oscuro"
+                );
+
+        DOM.themeButton.setAttribute(
+            "aria-label",
+            darkTheme
+                ? getAppTranslation(
+                    "header.themeToLightLabel",
+                    "Activar tema claro"
+                )
+                : getAppTranslation(
+                    "header.themeToDarkLabel",
+                    "Activar tema oscuro"
+                )
+        );
     }
 
     if (DOM.themeIcon) {
@@ -2438,6 +3364,248 @@ function initializeTheme() {
     applyTheme(getInitialTheme());
 }
 
+/* =========================================================
+   15. SELECTOR DE IDIOMA
+========================================================= */
+
+/**
+ * Devuelve el idioma guardado o el idioma predeterminado.
+ *
+ * @returns {"es"|"en"}
+ */
+function getInitialLanguage() {
+    try {
+        const storedLanguage =
+            localStorage.getItem(
+                LANGUAGE_STORAGE_KEY
+            );
+
+        if (
+            storedLanguage === "es" ||
+            storedLanguage === "en"
+        ) {
+            return storedLanguage;
+        }
+    } catch (error) {
+        console.warn(
+            "LeNCHoTeCH: no fue posible leer el idioma guardado.",
+            error
+        );
+    }
+
+    return "es";
+}
+
+
+/**
+ * Cierra el menú de idioma.
+ */
+function closeLanguageMenu() {
+    if (
+        !DOM.languageMenu ||
+        !DOM.languageButton
+    ) {
+        return;
+    }
+
+    DOM.languageMenu.hidden = true;
+
+    DOM.languageButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+}
+
+
+/**
+ * Abre el menú de idioma.
+ */
+function openLanguageMenu() {
+    if (
+        !DOM.languageMenu ||
+        !DOM.languageButton
+    ) {
+        return;
+    }
+
+    DOM.languageMenu.hidden = false;
+
+    DOM.languageButton.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+}
+
+
+/**
+ * Abre o cierra el menú de idioma.
+ */
+function toggleLanguageMenu() {
+    if (!DOM.languageMenu) {
+        return;
+    }
+
+    if (DOM.languageMenu.hidden) {
+        openLanguageMenu();
+    } else {
+        closeLanguageMenu();
+    }
+}
+
+
+/**
+ * Actualiza visualmente el idioma seleccionado.
+ *
+ * @param {"es"|"en"} language
+ */
+function updateLanguageControls(language) {
+    if (DOM.languageLabel) {
+        DOM.languageLabel.textContent =
+            language.toUpperCase();
+    }
+
+    DOM.languageOptions.forEach(option => {
+        const isActive =
+            option.dataset.language ===
+            language;
+
+        option.classList.toggle(
+            "is-active",
+            isActive
+        );
+
+        option.setAttribute(
+            "aria-pressed",
+            String(isActive)
+        );
+    });
+}
+
+
+/**
+ * Guarda y aplica la selección del idioma.
+ *
+ * La traducción real se añadirá en el próximo paso.
+ *
+ * @param {string} language
+ */
+function selectLanguage(language) {
+    if (
+        language !== "es" &&
+        language !== "en"
+    ) {
+        return;
+    }
+
+    try {
+        localStorage.setItem(
+            LANGUAGE_STORAGE_KEY,
+            language
+        );
+    } catch (error) {
+        console.warn(
+            "LeNCHoTeCH: no fue posible guardar el idioma.",
+            error
+        );
+    }
+
+    document.documentElement.lang =
+        language;
+
+    updateLanguageControls(language);
+
+    if (
+        window.LENCHOTECH_I18N &&
+        typeof window
+            .LENCHOTECH_I18N
+            .applyTranslations ===
+            "function"
+    ) {
+        window
+            .LENCHOTECH_I18N
+            .applyTranslations(
+                language
+            );
+
+        updateCategoryCardCounts();
+        
+        updateResultsText(
+            LeNCHoTeCHState.filteredProducts.length
+        );
+
+        renderCategoryFilters();
+        renderSubcategoryFilters();
+        renderActiveFilters();
+
+        renderProducts(
+            LeNCHoTeCHState.filteredProducts
+        );
+
+        if (
+            LeNCHoTeCHState.activeModal ===
+                DOM.quickViewModal &&
+            LeNCHoTeCHState.quickViewProductId !==
+                null
+        ) {
+            openQuickView(
+                LeNCHoTeCHState.quickViewProductId
+            );
+        }
+
+        applyTheme(
+            DOM.body.classList.contains(
+                "dark-theme"
+            )
+                ? "dark"
+                : "light"
+        );
+    }
+
+    closeLanguageMenu();
+
+    document.dispatchEvent(
+        new CustomEvent(
+            "lenchotech:language-changed",
+            {
+                detail: {
+                    language
+                }
+            }
+        )
+    );
+}
+
+
+/**
+ * Inicializa el selector de idioma.
+ */
+function initializeLanguageSelector() {
+    const initialLanguage =
+        getInitialLanguage();
+
+    document.documentElement.lang =
+        initialLanguage;
+
+    updateLanguageControls(
+        initialLanguage
+    );
+
+    if (
+        window.LENCHOTECH_I18N &&
+        typeof window
+            .LENCHOTECH_I18N
+            .applyTranslations ===
+            "function"
+    ) {
+        window
+            .LENCHOTECH_I18N
+            .applyTranslations(
+                initialLanguage
+            );
+
+        updateCategoryCardCounts();
+    }
+}
 
 /* =========================================================
    15. MENÚS
@@ -2794,7 +3962,7 @@ function handleProductAction(actionElement) {
     if (action === "add-to-cart") {
         document.dispatchEvent(
             new CustomEvent(
-                "lenchotech:add-to-cart",
+                "lenchotech:toggle-cart",
                 {
                     detail: {
                         productId: Number(productId)
@@ -2813,9 +3981,24 @@ function handleProductAction(actionElement) {
             typeof window.LENCHOTECH_CART ===
             "undefined"
         ) {
+            const visibleProductName =
+                getTranslatedProductName(
+                    product
+                );
+
             showToast(
-                "Producto seleccionado",
-                `${product.name} está preparado para añadirse al carrito.`,
+                getAppTranslation(
+                    "fallback.cartSelectedTitle",
+                    "Producto seleccionado"
+                ),
+                getAppTranslationWithVariables(
+                    "fallback.cartSelectedMessage",
+                    "{name} está preparado para añadirse al carrito.",
+                    {
+                        name:
+                            visibleProductName
+                    }
+                ),
                 "success"
             );
         }
@@ -2868,9 +4051,17 @@ function handleProductAction(actionElement) {
 
             showToast(
                 currentlyActive
-                    ? "Añadido a favoritos"
-                    : "Eliminado de favoritos",
-                product.name,
+                    ? getAppTranslation(
+                        "fallback.favoriteAddedTitle",
+                        "Añadido a favoritos"
+                    )
+                    : getAppTranslation(
+                        "fallback.favoriteRemovedTitle",
+                        "Eliminado de favoritos"
+                    ),
+                getTranslatedProductName(
+                    product
+                ),
                 currentlyActive
                     ? "success"
                     : "default"
@@ -2901,15 +4092,38 @@ function handleProductAction(actionElement) {
             typeof window.LENCHOTECH_COMPARE ===
             "undefined"
         ) {
+            const visibleProductName =
+                getTranslatedProductName(
+                    product
+                );
+
             showToast(
                 actionElement.checked
-                    ? "Producto seleccionado"
-                    : "Producto retirado",
-                `${product.name} ${
-                    actionElement.checked
-                        ? "se añadió al comparador."
-                        : "se eliminó del comparador."
-                }`,
+                    ? getAppTranslation(
+                        "fallback.compareSelectedTitle",
+                        "Producto seleccionado"
+                    )
+                    : getAppTranslation(
+                        "fallback.compareRemovedTitle",
+                        "Producto retirado"
+                    ),
+                actionElement.checked
+                    ? getAppTranslationWithVariables(
+                        "fallback.compareSelectedMessage",
+                        "{name} se añadió al comparador.",
+                        {
+                            name:
+                                visibleProductName
+                        }
+                    )
+                    : getAppTranslationWithVariables(
+                        "fallback.compareRemovedMessage",
+                        "{name} se eliminó del comparador.",
+                        {
+                            name:
+                                visibleProductName
+                        }
+                    ),
                 "default"
             );
         }
@@ -2958,6 +4172,50 @@ function initializeDirectEvents() {
         );
     }
 
+    if (DOM.languageButton) {
+        DOM.languageButton.addEventListener(
+            "click",
+            event => {
+                event.stopPropagation();
+                toggleLanguageMenu();
+            }
+        );
+    }
+
+
+    if (DOM.languageMenu) {
+        DOM.languageMenu.addEventListener(
+            "click",
+            event => {
+                const target =
+                    event.target;
+
+                if (!(target instanceof Element)) {
+                    return;
+                }
+
+                const languageOption =
+                    target.closest(
+                        ".language-menu__option"
+                    );
+
+                if (!languageOption) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const selectedLanguage =
+                    languageOption.dataset.language;
+
+                selectLanguage(
+                    selectedLanguage
+                );
+            }
+        );
+    }
+
     if (DOM.mobileMenuButton) {
         DOM.mobileMenuButton.addEventListener(
             "click",
@@ -3001,6 +4259,21 @@ function initializeDirectEvents() {
         );
     }
 
+    if (DOM.inStockFilter) {
+        DOM.inStockFilter.addEventListener(
+            "change",
+            () => {
+                LeNCHoTeCHState.filters.availability =
+                    DOM.inStockFilter.checked
+                        ? "available"
+                        : "all";
+
+                applyProductFilters();
+                scrollToCatalog();
+            }
+        );
+    }
+
     if (DOM.priceRange) {
         DOM.priceRange.addEventListener(
             "input",
@@ -3018,6 +4291,16 @@ function initializeDirectEvents() {
         DOM.clearFiltersButton.addEventListener(
             "click",
             clearAllFilters
+        );
+    }
+
+    if (DOM.emptyStateResetButton) {
+        DOM.emptyStateResetButton.addEventListener(
+            "click",
+            () => {
+                clearAllFilters();
+                scrollToCatalog();
+            }
         );
     }
 
@@ -3068,9 +4351,26 @@ function initializeDirectEvents() {
             scrollBackToTop
         );
     }
+
+    if (DOM.footerBackToTopLink) {
+        DOM.footerBackToTopLink.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                scrollBackToTop();
+            }
+        );
+    }
     
     if (DOM.offersButton) {
         DOM.offersButton.addEventListener(
+            "click",
+            showOffers
+        );
+    }
+
+    if (DOM.footerOffersButton) {
+        DOM.footerOffersButton.addEventListener(
             "click",
             showOffers
         );
@@ -3116,6 +4416,14 @@ function initializeDelegatedEvents() {
     document.addEventListener(
         "click",
         event => {
+            if (
+                !event.target.closest(
+                    ".language-selector"
+                )
+            ) {
+                closeLanguageMenu();
+            }
+
             const removeFilterButton =
                 event.target.closest(
                     "[data-remove-filter]"
@@ -3309,6 +4617,7 @@ function initializeDelegatedEvents() {
             closeAllDrawers();
             closeMobileFilters();
             closeNavigationMenus();
+            closeLanguageMenu();
         }
     );
 }
@@ -3344,7 +4653,10 @@ function initializeContactForm() {
             if (submitButton) {
                 submitButton.disabled = true;
                 submitButton.textContent =
-                    "Enviando...";
+                    getAppTranslation(
+                        "contact.sending",
+                        "Enviando..."
+                    );
             }
 
             window.setTimeout(
@@ -3354,12 +4666,21 @@ function initializeContactForm() {
                     if (submitButton) {
                         submitButton.disabled = false;
                         submitButton.textContent =
-                            "Enviar mensaje";
+                            getAppTranslation(
+                                "contact.send",
+                                "Enviar mensaje"
+                            );
                     }
 
                     showToast(
-                        "Mensaje enviado",
-                        "La demostración registró el formulario correctamente.",
+                        getAppTranslation(
+                            "contact.sentTitle",
+                            "Mensaje enviado"
+                        ),
+                        getAppTranslation(
+                            "contact.sentMessage",
+                            "El formulario simulado se procesó correctamente."
+                        ),
                         "success"
                     );
                 },
@@ -3405,8 +4726,14 @@ function loadProductCatalog() {
         );
 
         showToast(
-            "Error de catálogo",
-            "No fue posible cargar los productos.",
+            getAppTranslation(
+                "catalog.errorTitle",
+                "Error de catálogo"
+            ),
+            getAppTranslation(
+                "catalog.errorMessage",
+                "No fue posible cargar los productos."
+            ),
             "danger"
         );
 
@@ -3429,6 +4756,7 @@ function loadProductCatalog() {
 function initializeLeNCHoTeCH() {
     cacheDOMElements();
     initializeTheme();
+    initializeLanguageSelector();
     initializeImageFallbacks();
     initializeDirectEvents();
     initializeDelegatedEvents();
@@ -3490,7 +4818,16 @@ window.LENCHOTECH_APP = {
     renderProducts,
     applyProductFilters,
     activateCategory,
+    getTranslatedCategoryName,
+    getTranslatedSubcategoryName,
+    getTranslatedSpecificationName,
+    getTranslatedSpecificationValue,
+    getTranslatedProductName,
+    getTranslatedProductDescription,
+    getTranslatedProductBadge,
+
     scrollToCatalog,
+    openQuickView,
 
     openModal,
     closeModal,

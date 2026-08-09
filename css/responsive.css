@@ -153,6 +153,9 @@
         visibility: visible;
         grid-template-columns: repeat(2, 1fr);
         max-height: none;
+        overflow-y: visible;
+        overscroll-behavior: auto;
+        scrollbar-gutter: auto;
         gap: 22px;
         margin-top: 8px;
         padding: 20px;
@@ -681,6 +684,28 @@
 
     .admin-user-card {
         grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .language-menu {
+        position: fixed;
+        top: auto;
+        right: 12px;
+        bottom: 82px;
+        left: 12px;
+        width: auto;
+    }
+
+    .language-menu::before {
+        display: none;
+    }
+
+    .language-menu__option {
+        grid-template-columns: 46px minmax(0, 1fr);
+        min-height: 52px;
     }
 
 }

@@ -255,36 +255,66 @@ function clearAuthMessage(element) {
 function getFirebaseErrorMessage(error) {
     const errorMessages = {
         "auth/email-already-in-use":
-            "Ya existe una cuenta registrada con ese correo.",
+            getAuthTranslation(
+                "authentication.firebaseEmailInUse",
+                "Ya existe una cuenta registrada con ese correo."
+            ),
 
         "auth/invalid-email":
-            "El correo electrónico no es válido.",
+            getAuthTranslation(
+                "authentication.firebaseInvalidEmail",
+                "El correo electrónico no es válido."
+            ),
 
         "auth/weak-password":
-            "La contraseña debe tener al menos 6 caracteres.",
+            getAuthTranslation(
+                "authentication.firebaseWeakPassword",
+                "La contraseña debe tener al menos 6 caracteres."
+            ),
 
         "auth/invalid-credential":
-            "El correo o la contraseña son incorrectos.",
+            getAuthTranslation(
+                "authentication.firebaseInvalidCredential",
+                "El correo o la contraseña son incorrectos."
+            ),
 
         "auth/user-disabled":
-            "Esta cuenta fue deshabilitada.",
+            getAuthTranslation(
+                "authentication.firebaseUserDisabled",
+                "Esta cuenta fue deshabilitada."
+            ),
 
         "auth/too-many-requests":
-            "Se realizaron demasiados intentos. Inténtalo más tarde.",
+            getAuthTranslation(
+                "authentication.firebaseTooManyRequests",
+                "Se realizaron demasiados intentos. Inténtalo más tarde."
+            ),
 
         "auth/network-request-failed":
-            "No fue posible conectar con Firebase. Revisa tu conexión.",
+            getAuthTranslation(
+                "authentication.firebaseNetworkError",
+                "No fue posible conectar con Firebase. Revisa tu conexión."
+            ),
 
         "auth/missing-password":
-            "Escribe tu contraseña.",
+            getAuthTranslation(
+                "authentication.firebaseMissingPassword",
+                "Escribe tu contraseña."
+            ),
 
         "auth/missing-email":
-            "Escribe tu correo electrónico."
+            getAuthTranslation(
+                "authentication.firebaseMissingEmail",
+                "Escribe tu correo electrónico."
+            )
     };
 
     return (
         errorMessages[error?.code] ||
-        "Ocurrió un error inesperado. Inténtalo nuevamente."
+        getAuthTranslation(
+            "authentication.firebaseUnexpectedError",
+            "Ocurrió un error inesperado. Inténtalo nuevamente."
+        )
     );
 }
 
@@ -414,18 +444,25 @@ function togglePasswordVisibility(button) {
     input.type =
         shouldShow ? "text" : "password";
 
+    const buttonText =
+        shouldShow
+            ? getAuthTranslation(
+                "authentication.hidePassword",
+                "Ocultar contraseña"
+            )
+            : getAuthTranslation(
+                "authentication.showPassword",
+                "Mostrar contraseña"
+            );
+
     button.setAttribute(
         "aria-label",
-        shouldShow
-            ? "Ocultar contraseña"
-            : "Mostrar contraseña"
+        buttonText
     );
 
     button.setAttribute(
         "title",
-        shouldShow
-            ? "Ocultar contraseña"
-            : "Mostrar contraseña"
+        buttonText
     );
 }
 
@@ -455,7 +492,10 @@ async function handleRegister(event) {
     if (name.length < 2) {
         showAuthMessage(
             registerMessage,
-            "Escribe un nombre de al menos 2 caracteres."
+            getAuthTranslation(
+                "authentication.nameTooShort",
+                "Escribe un nombre de al menos 2 caracteres."
+            )
         );
 
         registerNameInput?.focus();
@@ -465,7 +505,10 @@ async function handleRegister(event) {
     if (!email) {
         showAuthMessage(
             registerMessage,
-            "Escribe tu correo electrónico."
+            getAuthTranslation(
+                "authentication.emailRequired",
+                "Escribe tu correo electrónico."
+            )
         );
 
         registerEmailInput?.focus();
@@ -475,7 +518,10 @@ async function handleRegister(event) {
     if (password.length < 6) {
         showAuthMessage(
             registerMessage,
-            "La contraseña debe tener al menos 6 caracteres."
+            getAuthTranslation(
+                "authentication.passwordTooShort",
+                "La contraseña debe tener al menos 6 caracteres."
+            )
         );
 
         registerPasswordInput?.focus();
@@ -485,7 +531,10 @@ async function handleRegister(event) {
     if (password !== passwordConfirmation) {
         showAuthMessage(
             registerMessage,
-            "Las contraseñas no coinciden."
+            getAuthTranslation(
+                "authentication.passwordsDoNotMatch",
+                "Las contraseñas no coinciden."
+            )
         );
 
         registerPasswordConfirmationInput?.focus();
@@ -495,7 +544,10 @@ async function handleRegister(event) {
     if (!registerTermsInput?.checked) {
         showAuthMessage(
             registerMessage,
-            "Debes aceptar el uso educativo de la cuenta."
+            getAuthTranslation(
+                "authentication.termsRequired",
+                "Debes aceptar el uso educativo de la cuenta."
+            )
         );
 
         registerTermsInput?.focus();
@@ -505,8 +557,14 @@ async function handleRegister(event) {
     setSubmitButtonLoading(
         registerSubmitButton,
         true,
-        "Crear cuenta",
-        "Creando cuenta..."
+        getAuthTranslation(
+            "authentication.registerSubmit",
+            "Crear cuenta"
+        ),
+        getAuthTranslation(
+            "authentication.creatingAccount",
+            "Creando cuenta..."
+        )
     );
 
     try {
@@ -550,8 +608,11 @@ async function handleRegister(event) {
 
         showAuthMessage(
             registerMessage,
-            "Cuenta creada. Te enviamos un correo para verificar tu dirección.",
-            "success"
+            getAuthTranslation(
+                "authentication.accountCreated",
+                "Cuenta creada. Te enviamos un correo para verificar tu dirección."
+            ),
+                "success"
         );
 
         window.setTimeout(() => {
@@ -571,8 +632,14 @@ async function handleRegister(event) {
         setSubmitButtonLoading(
             registerSubmitButton,
             false,
-            "Crear cuenta",
-            "Creando cuenta..."
+            getAuthTranslation(
+                "authentication.registerSubmit",
+                "Crear cuenta"
+            ),
+            getAuthTranslation(
+                "authentication.creatingAccount",
+                "Creando cuenta..."
+            )
         );
     }
 }
@@ -596,7 +663,10 @@ async function handleLogin(event) {
     if (!email || !password) {
         showAuthMessage(
             loginMessage,
-            "Escribe tu correo y contraseña."
+            getAuthTranslation(
+                "authentication.loginCredentialsRequired",
+                "Escribe tu correo y contraseña."
+            )
         );
 
         return;
@@ -605,8 +675,14 @@ async function handleLogin(event) {
     setSubmitButtonLoading(
         loginSubmitButton,
         true,
-        "Iniciar sesión",
-        "Iniciando..."
+        getAuthTranslation(
+            "authentication.loginSubmit",
+            "Iniciar sesión"
+        ),
+        getAuthTranslation(
+            "authentication.loggingIn",
+            "Iniciando..."
+        )
     );
 
     try {
@@ -633,12 +709,22 @@ async function handleLogin(event) {
 
         loginForm?.reset();
 
+        const visibleLoginName =
+            userCredential.user.displayName ||
+            getAuthTranslation(
+                "authentication.genericUser",
+                "usuario"
+            );
+
         showAuthMessage(
             loginMessage,
-            `Bienvenido, ${
-                userCredential.user.displayName ||
-                "usuario"
-            }.`,
+            getAuthTranslation(
+                "authentication.welcomeUser",
+                "Bienvenido, {name}."
+            ).replace(
+                "{name}",
+                visibleLoginName
+            ),
             "success"
         );
 
@@ -659,8 +745,14 @@ async function handleLogin(event) {
         setSubmitButtonLoading(
             loginSubmitButton,
             false,
-            "Iniciar sesión",
-            "Iniciando..."
+            getAuthTranslation(
+                "authentication.loginSubmit",
+                "Iniciar sesión"
+            ),
+            getAuthTranslation(
+                "authentication.loggingIn",
+                "Iniciando..."
+            )
         );
     }
 }
@@ -679,7 +771,10 @@ async function handlePasswordReset() {
     if (!email) {
         showAuthMessage(
             loginMessage,
-            "Primero escribe tu correo electrónico."
+            getAuthTranslation(
+                "authentication.resetEmailRequired",
+                "Primero escribe tu correo electrónico."
+            )
         );
 
         loginEmailInput?.focus();
@@ -694,7 +789,10 @@ async function handlePasswordReset() {
 
         showAuthMessage(
             loginMessage,
-            "Te enviamos un correo para restablecer tu contraseña.",
+            getAuthTranslation(
+                "authentication.resetEmailSent",
+                "Te enviamos un correo para restablecer tu contraseña."
+            ),
             "success"
         );
     } catch (error) {
@@ -745,8 +843,14 @@ function openAccountMenu() {
     if (accountEmailStatus) {
         accountEmailStatus.textContent =
             isVerified
-                ? "Verificado"
-                : "Sin verificar";
+                ? getAuthTranslation(
+                    "accountMenu.verified",
+                    "Verificado"
+                )
+                : getAuthTranslation(
+                    "accountMenu.unverified",
+                    "Sin verificar"
+                );
 
         accountEmailStatus.classList.toggle(
             "is-verified",
@@ -788,8 +892,14 @@ async function handleLogout() {
                 .showToast === "function"
         ) {
             window.LENCHOTECH_APP.showToast(
-                "Sesión cerrada",
-                "Cerraste sesión correctamente.",
+                getAuthTranslation(
+                    "accountMenu.logoutTitle",
+                    "Sesión cerrada"
+                ),
+                getAuthTranslation(
+                    "accountMenu.logoutMessage",
+                    "Cerraste sesión correctamente."
+                ),
                 "success"
             );
         }
@@ -814,7 +924,10 @@ async function handleResendVerification() {
 
         if (accountEmailStatus) {
             accountEmailStatus.textContent =
-                "Correo reenviado";
+                getAuthTranslation(
+                    "accountMenu.verificationResent",
+                    "Correo reenviado"
+                );
         }
 
         if (
@@ -823,8 +936,14 @@ async function handleResendVerification() {
                 .showToast === "function"
         ) {
             window.LENCHOTECH_APP.showToast(
-                "Verificación enviada",
-                "Revisa tu correo electrónico.",
+                getAuthTranslation(
+                    "accountMenu.verificationSentTitle",
+                    "Verificación enviada"
+                ),
+                getAuthTranslation(
+                    "accountMenu.verificationSentMessage",
+                    "Revisa tu correo electrónico."
+                ),
                 "success"
             );
         }
@@ -840,6 +959,25 @@ async function handleResendVerification() {
    11. ESTADO DE LA SESIÓN
 ========================================================= */
 
+function getAuthTranslation(
+    key,
+    fallback
+) {
+    const language =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
+    const translatedText =
+        window.LENCHOTECH_I18N
+            ?.getTranslation?.(
+                language,
+                key
+            );
+
+    return translatedText || fallback;
+}
+
 function updateAuthButton(user) {
     if (!authButton || !authButtonLabel) {
         return;
@@ -849,17 +987,32 @@ function updateAuthButton(user) {
         const visibleName =
             user.displayName?.trim() ||
             user.email?.split("@")[0] ||
-            "Mi cuenta";
+            getAuthTranslation(
+                "header.myAccount",
+                "Mi cuenta"
+            );
 
         authButtonLabel.textContent =
             visibleName;
 
         authButton.title =
-            `Cuenta de ${visibleName}`;
+            getAuthTranslation(
+                "header.accountTitle",
+                "Cuenta de {name}"
+            ).replace(
+                "{name}",
+                visibleName
+            );
 
         authButton.setAttribute(
             "aria-label",
-            `Abrir cuenta de ${visibleName}`
+            getAuthTranslation(
+                "header.accountLabel",
+                "Abrir cuenta de {name}"
+            ).replace(
+                "{name}",
+                visibleName
+            )
         );
 
         authButton.classList.add(
@@ -870,14 +1023,23 @@ function updateAuthButton(user) {
     }
 
     authButtonLabel.textContent =
-        "Iniciar sesión";
+        getAuthTranslation(
+            "header.signIn",
+            "Iniciar sesión"
+        );
 
     authButton.title =
-        "Iniciar sesión";
+        getAuthTranslation(
+            "header.signIn",
+            "Iniciar sesión"
+        );
 
     authButton.setAttribute(
         "aria-label",
-        "Iniciar sesión o crear una cuenta"
+        getAuthTranslation(
+            "header.signInLabel",
+            "Iniciar sesión o crear una cuenta"
+        )
     );
 
     authButton.classList.remove(
@@ -963,11 +1125,19 @@ function formatFirestoreDate(timestamp) {
         !timestamp ||
         typeof timestamp.toDate !== "function"
     ) {
-        return "Sin información";
+        return getAuthTranslation(
+            "admin.noInformation",
+            "Sin información"
+        );
     }
 
+    const locale =
+        document.documentElement.lang === "en"
+            ? "en-US"
+            : "es-PR";
+
     return new Intl.DateTimeFormat(
-        "es-PR",
+        locale,
         {
             dateStyle: "medium",
             timeStyle: "short"
@@ -1047,7 +1217,10 @@ function renderAdminUsers(users) {
         adminUsersList.innerHTML = "";
 
         setAdminMessage(
-            "Todavía no hay usuarios registrados."
+            getAuthTranslation(
+                "admin.noUsers",
+                "Todavía no hay usuarios registrados."
+            )
         );
 
         return;
@@ -1062,8 +1235,14 @@ function renderAdminUsers(users) {
 
             const roleLabel =
                 user.role === "admin"
-                    ? "Administrador"
-                    : "Usuario";
+                    ? getAuthTranslation(
+                        "admin.administrator",
+                        "Administrador"
+                    )
+                    : getAuthTranslation(
+                        "admin.user",
+                        "Usuario"
+                    );
 
             return `
                 <article class="admin-user-card">
@@ -1072,20 +1251,33 @@ function renderAdminUsers(users) {
                         <strong>
                             ${escapeAdminHTML(
                                 user.displayName ||
-                                "Usuario sin nombre"
+                                getAuthTranslation(
+                                    "admin.unnamedUser",
+                                    "Usuario sin nombre"
+                                )
                             )}
                         </strong>
 
                         <span>
                             ${escapeAdminHTML(
                                 user.email ||
-                                "Correo no disponible"
+                                getAuthTranslation(
+                                    "admin.unavailableEmail",
+                                    "Correo no disponible"
+                                )
                             )}
                         </span>
                     </div>
 
                     <div class="admin-user-card__item">
-                        <span>Último acceso</span>
+                        <span>
+                            ${escapeAdminHTML(
+                                getAuthTranslation(
+                                    "admin.lastAccess",
+                                    "Último acceso"
+                                )
+                            )}
+                        </span>
 
                         <strong>
                             ${escapeAdminHTML(
@@ -1097,7 +1289,14 @@ function renderAdminUsers(users) {
                     </div>
 
                     <div class="admin-user-card__item">
-                        <span>Estado</span>
+                        <span>
+                            ${escapeAdminHTML(
+                                getAuthTranslation(
+                                    "admin.status",
+                                    "Estado"
+                                )
+                            )}
+                        </span>
 
                         <strong
                             class="admin-user-card__status ${
@@ -1108,8 +1307,14 @@ function renderAdminUsers(users) {
                         >
                             ${
                                 verified
-                                    ? "Verificado"
-                                    : "Sin verificar"
+                                    ? getAuthTranslation(
+                                        "admin.verified",
+                                        "Verificado"
+                                    )
+                                    : getAuthTranslation(
+                                        "admin.unverified",
+                                        "Sin verificar"
+                                    )
                             }
                         </strong>
                     </div>
@@ -1120,11 +1325,19 @@ function renderAdminUsers(users) {
                         </span>
 
                         <strong>
-                            ${
-                                Number(
-                                    user.loginCount || 0
+                            ${escapeAdminHTML(
+                                getAuthTranslation(
+                                    "admin.accesses",
+                                    "{count} accesos"
+                                ).replace(
+                                    "{count}",
+                                    String(
+                                        Number(
+                                            user.loginCount || 0
+                                        )
+                                    )
                                 )
-                            } accesos
+                            )}
                         </strong>
                     </div>
 
@@ -1137,7 +1350,10 @@ function renderAdminUsers(users) {
 async function loadAdminUsers() {
     if (!isAdministrator) {
         setAdminMessage(
-            "No tienes permiso para consultar esta información.",
+            getAuthTranslation(
+                "admin.noPermission",
+                "No tienes permiso para consultar esta información."
+            ),
             true
         );
 
@@ -1149,11 +1365,17 @@ async function loadAdminUsers() {
             true;
 
         refreshAdminUsersButton.textContent =
-            "Actualizando...";
+            getAuthTranslation(
+                "admin.refreshing",
+                "Actualizando..."
+            );
     }
 
     setAdminMessage(
-        "Cargando usuarios..."
+        getAuthTranslation(
+            "admin.loading",
+            "Cargando usuarios..."
+        )
     );
 
     try {
@@ -1191,7 +1413,10 @@ async function loadAdminUsers() {
         );
 
         setAdminMessage(
-            "No fue posible cargar los usuarios. Revisa las reglas de Firestore.",
+            getAuthTranslation(
+                "admin.loadError",
+                "No fue posible cargar los usuarios. Revisa las reglas de Firestore."
+            ),
             true
         );
     } finally {
@@ -1200,7 +1425,10 @@ async function loadAdminUsers() {
                 false;
 
             refreshAdminUsersButton.textContent =
-                "Actualizar";
+                getAuthTranslation(
+                    "admin.refresh",
+                    "Actualizar"
+                );
         }
     }
 }
@@ -1243,6 +1471,19 @@ onAuthStateChanged(auth, async user => {
 
     updateAuthButton(user);
     updateAdminControls();
+
+    window.dispatchEvent(
+        new CustomEvent(
+            "lenchotech-auth-changed",
+            {
+                detail: {
+                    user,
+                    role: currentUserRole,
+                    isAdministrator
+                }
+            }
+        )
+    );
 
     if (user) {
         console.log(
@@ -1392,3 +1633,26 @@ document.addEventListener("keydown", event => {
         closeAdminModal();
     }
 });
+
+document.addEventListener(
+    "lenchotech:language-changed",
+    () => {
+        updateAuthButton(currentUser);
+
+        if (
+            currentUser &&
+            accountMenu &&
+            !accountMenu.hidden
+        ) {
+            openAccountMenu();
+        }
+
+        if (
+            adminModal &&
+            !adminModal.hidden &&
+            isAdministrator
+        ) {
+            loadAdminUsers();
+        }
+    }
+);

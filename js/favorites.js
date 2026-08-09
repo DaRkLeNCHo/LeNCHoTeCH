@@ -5,6 +5,19 @@
 
 "use strict";
 
+import {
+    db
+} from "./firebase-config.js";
+
+import {
+    collection,
+    doc,
+    getDocs,
+    setDoc,
+    deleteDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
+
 
 /* =========================================================
    1. CONFIGURACIÓN
@@ -17,6 +30,7 @@ const LeNCHoTeCHFavoritesState = {
     productIds: []
 };
 
+let authenticatedUser = null;
 
 /* =========================================================
    2. UTILIDADES GENERALES
@@ -122,6 +136,65 @@ function escapeFavoriteHTML(value) {
         .replaceAll("'", "&#039;");
 }
 
+/**
+ * Obtiene una traducción para el sistema
+ * de favoritos.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @returns {string}
+ */
+function getFavoriteTranslation(
+    key,
+    fallback
+) {
+    const language =
+        document.documentElement.lang === "en"
+            ? "en"
+            : "es";
+
+    const translatedText =
+        window.LENCHOTECH_I18N
+            ?.getTranslation?.(
+                language,
+                key
+            );
+
+    return translatedText || fallback;
+}
+
+/**
+ * Obtiene una traducción y reemplaza variables
+ * como {stock} o {name}.
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @param {Record<string, string|number>} variables
+ * @returns {string}
+ */
+function getFavoriteTranslationWithVariables(
+    key,
+    fallback,
+    variables = {}
+) {
+    let translatedText =
+        getFavoriteTranslation(
+            key,
+            fallback
+        );
+
+    Object.entries(variables).forEach(
+        ([variableName, variableValue]) => {
+            translatedText =
+                translatedText.replaceAll(
+                    `{${variableName}}`,
+                    String(variableValue)
+                );
+        }
+    );
+
+    return translatedText;
+}
 
 /**
  * Muestra una notificación.
@@ -220,7 +293,78 @@ function saveFavorites() {
 /**
  * Carga los favoritos guardados.
  */
-function loadFavorites() {
+async function loadFavorites() {
+
+    /*
+        USUARIO CON SESIÓN:
+        cargar sus favoritos privados desde Firestore.
+    */
+
+    if (authenticatedUser) {
+        try {
+            const favoritesSnapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "users",
+                        authenticatedUser.uid,
+                        "favorites"
+                    )
+                );
+
+            const firestoreProductIds =
+                favoritesSnapshot.docs
+                    .map(favoriteDocument =>
+                        Number(
+                            favoriteDocument.id
+                        )
+                    )
+                    .filter(
+                        (
+                            productId,
+                            index,
+                            array
+                        ) => {
+                            const product =
+                                getFavoriteProductById(
+                                    productId
+                                );
+
+                            return (
+                                Number.isFinite(
+                                    productId
+                                ) &&
+                                Boolean(product) &&
+                                array.indexOf(
+                                    productId
+                                ) === index
+                            );
+                        }
+                    );
+
+            LeNCHoTeCHFavoritesState.productIds =
+                firestoreProductIds;
+
+            return;
+        } catch (error) {
+            console.error(
+                "LeNCHoTeCH: no fue posible cargar los favoritos de Firestore.",
+                error
+            );
+
+            LeNCHoTeCHFavoritesState.productIds =
+                [];
+
+            return;
+        }
+    }
+
+
+    /*
+        INVITADO:
+        cargar favoritos temporales desde localStorage.
+    */
+
     try {
         const storedFavorites =
             localStorage.getItem(
@@ -261,9 +405,13 @@ function loadFavorites() {
                             );
 
                         return (
+                            Number.isFinite(
+                                productId
+                            ) &&
                             Boolean(product) &&
-                            array.indexOf(productId) ===
-                                index
+                            array.indexOf(
+                                productId
+                            ) === index
                         );
                     }
                 );
@@ -271,7 +419,7 @@ function loadFavorites() {
         saveFavorites();
     } catch (error) {
         console.warn(
-            "LeNCHoTeCH: no fue posible cargar los favoritos.",
+            "LeNCHoTeCH: no fue posible cargar los favoritos locales.",
             error
         );
 
@@ -280,23 +428,146 @@ function loadFavorites() {
     }
 }
 
+/**
+ * Guarda un producto favorito en Firestore.
+ *
+ * @param {number} productId
+ */
+async function saveFavoriteToFirestore(
+    productId
+) {
+    if (!authenticatedUser) {
+        return;
+    }
+
+    try {
+        await setDoc(
+            doc(
+                db,
+                "users",
+                authenticatedUser.uid,
+                "favorites",
+                String(productId)
+            ),
+            {
+                productId,
+                addedAt: serverTimestamp()
+            }
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible guardar el favorito en Firestore.",
+            error
+        );
+
+        showFavoriteToast(
+            getFavoriteTranslation(
+                "favorites.saveErrorTitle",
+                "Error al guardar"
+            ),
+            getFavoriteTranslation(
+                "favorites.saveErrorMessage",
+                "El favorito se mostró en la página, pero no pudo sincronizarse con tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
+
+
+/**
+ * Elimina un producto favorito de Firestore.
+ *
+ * @param {number} productId
+ */
+async function deleteFavoriteFromFirestore(
+    productId
+) {
+    if (!authenticatedUser) {
+        return;
+    }
+
+    try {
+        await deleteDoc(
+            doc(
+                db,
+                "users",
+                authenticatedUser.uid,
+                "favorites",
+                String(productId)
+            )
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible eliminar el favorito de Firestore.",
+            error
+        );
+
+        showFavoriteToast(
+            getFavoriteTranslation(
+                "favorites.syncErrorTitle",
+                "Error al sincronizar"
+            ),
+            getFavoriteTranslation(
+                "favorites.deleteSyncErrorMessage",
+                "El favorito se eliminó de la pantalla, pero no pudo borrarse de tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
+
+
+/**
+ * Elimina todos los favoritos del usuario en Firestore.
+ */
+async function clearFirestoreFavorites() {
+    if (!authenticatedUser) {
+        return;
+    }
+
+    try {
+        const favoritesSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "users",
+                    authenticatedUser.uid,
+                    "favorites"
+                )
+            );
+
+        await Promise.all(
+            favoritesSnapshot.docs.map(
+                favoriteDocument =>
+                    deleteDoc(
+                        favoriteDocument.ref
+                    )
+            )
+        );
+    } catch (error) {
+        console.error(
+            "LeNCHoTeCH: no fue posible vaciar los favoritos de Firestore.",
+            error
+        );
+
+        showFavoriteToast(
+            getFavoriteTranslation(
+                "favorites.syncErrorTitle",
+                "Error al sincronizar"
+            ),
+            getFavoriteTranslation(
+                "favorites.clearSyncErrorMessage",
+                "La lista se vació en la pantalla, pero no pudo actualizarse completamente en tu cuenta."
+            ),
+            "danger"
+        );
+    }
+}
 
 /* =========================================================
    4. SELECTORES DEL DOM
 ========================================================= */
-
-/**
- * Obtiene el panel lateral de favoritos.
- *
- * @returns {HTMLElement|null}
- */
-function getFavoritesDrawer() {
-    return document.querySelector(
-        "#favorites-drawer, " +
-        "[data-favorites-drawer]"
-    );
-}
-
 
 /**
  * Obtiene el contenedor de productos favoritos.
@@ -308,6 +579,18 @@ function getFavoritesItemsContainer() {
         "#favorites-items, " +
         ".favorites-items, " +
         "[data-favorites-items]"
+    );
+}
+
+/**
+ * Obtiene el pie del panel de favoritos.
+ *
+ * @returns {HTMLElement|null}
+ */
+function getFavoritesFooter() {
+    return document.querySelector(
+        "#favorites-footer, " +
+        "[data-favorites-footer]"
     );
 }
 
@@ -411,8 +694,14 @@ function addFavorite(
 
     if (!product) {
         showFavoriteToast(
-            "Producto no encontrado",
-            "No fue posible añadir este producto a favoritos.",
+            getFavoriteTranslation(
+                "favorites.productNotFoundTitle",
+                "Producto no encontrado"
+            ),
+            getFavoriteTranslation(
+                "favorites.favoriteNotFoundMessage",
+                "No fue posible añadir este producto a favoritos."
+            ),
             "danger"
         );
 
@@ -427,14 +716,33 @@ function addFavorite(
         .productIds
         .push(product.id);
 
-    saveFavorites();
+    if (authenticatedUser) {
+        saveFavoriteToFirestore(product.id);
+    } else {
+        saveFavorites();
+    }
+
     renderFavorites();
     dispatchFavoritesUpdatedEvent();
 
     if (showMessage) {
         showFavoriteToast(
-            "Añadido a favoritos",
-            `${product.name} se guardó en tu lista.`,
+            getFavoriteTranslation(
+                "favorites.addedTitle",
+                "Añadido a favoritos"
+            ),
+            getFavoriteTranslationWithVariables(
+                "favorites.addedMessage",
+                "{name} se guardó en tu lista.",
+                {
+                    name:
+                        getFavoritesApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            ),
             "success"
         );
     }
@@ -488,16 +796,40 @@ function removeFavorite(
         return false;
     }
 
-    saveFavorites();
+    if (authenticatedUser) {
+        deleteFavoriteFromFirestore(
+            normalizedId
+        );
+    } else {
+        saveFavorites();
+    }
+
     renderFavorites();
     dispatchFavoritesUpdatedEvent();
 
     if (showMessage) {
         showFavoriteToast(
-            "Eliminado de favoritos",
+            getFavoriteTranslation(
+                "favorites.removedTitle",
+                "Eliminado de favoritos"
+            ),
             product
-                ? `${product.name} se eliminó de tu lista.`
-                : "El producto se eliminó de favoritos.",
+                ? getFavoriteTranslationWithVariables(
+                    "favorites.removedMessage",
+                    "{name} se eliminó de tu lista.",
+                    {
+                        name:
+                            getFavoritesApp()
+                                .getTranslatedProductName?.(
+                                    product
+                                ) ||
+                            product.name
+                    }
+                )
+                : getFavoriteTranslation(
+                    "favorites.removedGenericMessage",
+                    "El producto se eliminó de favoritos."
+                ),
             "default"
         );
     }
@@ -525,14 +857,25 @@ function clearFavorites(
     LeNCHoTeCHFavoritesState.productIds =
         [];
 
-    saveFavorites();
+    if (authenticatedUser) {
+        clearFirestoreFavorites();
+    } else {
+        saveFavorites();
+    }
+
     renderFavorites();
     dispatchFavoritesUpdatedEvent();
 
     if (showMessage) {
         showFavoriteToast(
-            "Favoritos eliminados",
-            "La lista de favoritos quedó vacía.",
+            getFavoriteTranslation(
+                "favorites.clearedTitle",
+                "Favoritos eliminados"
+            ),
+            getFavoriteTranslation(
+                "favorites.clearedMessage",
+                "La lista de favoritos quedó vacía."
+            ),
             "default"
         );
     }
@@ -576,10 +919,30 @@ function toggleFavorite(productId) {
  * @returns {string}
  */
 function createFavoriteItemHTML(product) {
+    const app =
+        getFavoritesApp();
+
+    const visibleProductName =
+        typeof app.getTranslatedProductName ===
+        "function"
+            ? app.getTranslatedProductName(
+                product
+            )
+            : product.name;
+            
     const stockText =
         Number(product.stock) > 0
-            ? `${product.stock} disponibles`
-            : "Producto agotado";
+            ? getFavoriteTranslationWithVariables(
+                "favorites.availableStock",
+                "{stock} disponibles",
+                {
+                    stock: product.stock
+                }
+            )
+            : getFavoriteTranslation(
+                "favorites.outOfStock",
+                "Producto agotado"
+            );
 
     const stockClass =
         Number(product.stock) > 0
@@ -602,8 +965,12 @@ function createFavoriteItemHTML(product) {
                 <img
                     class="drawer-item__image favorite-item__image"
                     src="${escapeFavoriteHTML(product.image)}"
-                    alt="${escapeFavoriteHTML(product.name)}"
-                    data-product-name="${escapeFavoriteHTML(product.name)}"
+                    alt="${escapeFavoriteHTML(
+                        visibleProductName
+                    )}"
+                    data-product-name="${escapeFavoriteHTML(
+                        visibleProductName
+                    )}"
                     loading="lazy"
                 >
             </div>
@@ -614,7 +981,9 @@ function createFavoriteItemHTML(product) {
                 </span>
 
                 <h3 class="drawer-item__title">
-                    ${escapeFavoriteHTML(product.name)}
+                    ${escapeFavoriteHTML(
+                        visibleProductName
+                    )}
                 </h3>
 
                 <strong class="favorite-item__price">
@@ -635,7 +1004,12 @@ function createFavoriteItemHTML(product) {
                         data-product-id="${product.id}"
                         ${addToCartDisabled}
                     >
-                        Añadir al carrito
+                        ${escapeFavoriteHTML(
+                            getFavoriteTranslation(
+                                "favorites.addToCart",
+                                "Añadir al carrito"
+                            )
+                        )}
                     </button>
 
                     <button
@@ -644,7 +1018,12 @@ function createFavoriteItemHTML(product) {
                         data-favorites-action="quick-view"
                         data-product-id="${product.id}"
                     >
-                        Vista rápida
+                        ${escapeFavoriteHTML(
+                            getFavoriteTranslation(
+                                "favorites.quickView",
+                                "Vista rápida"
+                            )
+                        )}
                     </button>
                 </div>
             </div>
@@ -655,8 +1034,21 @@ function createFavoriteItemHTML(product) {
                     class="drawer-item__remove"
                     data-favorites-action="remove"
                     data-product-id="${product.id}"
-                    aria-label="Eliminar ${escapeFavoriteHTML(product.name)} de favoritos"
-                    title="Eliminar de favoritos"
+                    aria-label="${escapeFavoriteHTML(
+                        getFavoriteTranslationWithVariables(
+                            "favorites.removeLabel",
+                            "Eliminar {name} de favoritos",
+                            {
+                                name: visibleProductName
+                            }
+                        )
+                    )}"
+                    title="${escapeFavoriteHTML(
+                        getFavoriteTranslation(
+                            "favorites.removeTitle",
+                            "Eliminar de favoritos"
+                        )
+                    )}"
                 >
                     ×
                 </button>
@@ -681,10 +1073,22 @@ function createEmptyFavoritesHTML() {
                 ♡
             </span>
 
-            <h3>No tienes favoritos</h3>
+            <h3>
+                ${escapeFavoriteHTML(
+                    getFavoriteTranslation(
+                        "favorites.emptyTitle",
+                        "No tienes favoritos"
+                    )
+                )}
+            </h3>
 
             <p>
-                Guarda los productos que más te interesen para encontrarlos rápidamente.
+                ${escapeFavoriteHTML(
+                    getFavoriteTranslation(
+                        "favorites.emptyDescription",
+                        "Guarda los productos que más te interesen para encontrarlos rápidamente."
+                    )
+                )}
             </p>
 
             <button
@@ -692,7 +1096,12 @@ function createEmptyFavoritesHTML() {
                 class="primary-button"
                 data-favorites-action="continue-shopping"
             >
-                Explorar productos
+                ${escapeFavoriteHTML(
+                    getFavoriteTranslation(
+                        "favorites.exploreProducts",
+                        "Explorar productos"
+                    )
+                )}
             </button>
         </div>
     `;
@@ -727,6 +1136,14 @@ function renderFavorites() {
         }
     }
 
+    const footer =
+        getFavoritesFooter();
+
+    if (footer) {
+        footer.hidden =
+            products.length === 0;
+    }
+
     updateFavoritesCounter();
     synchronizeFavoriteButtons();
 }
@@ -754,11 +1171,18 @@ function updateFavoritesCounter() {
 
     counter.setAttribute(
         "aria-label",
-        `${count} ${
-            count === 1
-                ? "producto favorito"
-                : "productos favoritos"
-        }`
+        count === 1
+            ? getFavoriteTranslation(
+                "favorites.counterSingle",
+                "1 producto favorito"
+            )
+            : getFavoriteTranslationWithVariables(
+                "favorites.counterPlural",
+                "{count} productos favoritos",
+                {
+                    count
+                }
+            )
     );
 }
 
@@ -837,20 +1261,42 @@ function updateFavoriteButtonState(
             : null;
 
     const productName =
-        product?.name || "este producto";
+        product?.name ||
+        getFavoriteTranslation(
+            "favorites.genericProduct",
+            "este producto"
+        );
 
     button.setAttribute(
         "aria-label",
         active
-            ? `Eliminar ${productName} de favoritos`
-            : `Añadir ${productName} a favoritos`
+            ? getFavoriteTranslationWithVariables(
+                "favorites.removeLabel",
+                "Eliminar {name} de favoritos",
+                {
+                    name: productName
+                }
+            )
+            : getFavoriteTranslationWithVariables(
+                "favorites.addLabel",
+                "Añadir {name} a favoritos",
+                {
+                    name: productName
+                }
+            )
     );
 
     button.setAttribute(
         "title",
         active
-            ? "Eliminar de favoritos"
-            : "Añadir a favoritos"
+            ? getFavoriteTranslation(
+                "favorites.removeTitle",
+                "Eliminar de favoritos"
+            )
+            : getFavoriteTranslation(
+                "favorites.addTitle",
+                "Añadir a favoritos"
+            )
     );
 
     const icon =
@@ -871,10 +1317,38 @@ function updateFavoriteButtonState(
         );
 
     if (text) {
+        const isQuickViewButton =
+            Boolean(
+                button.closest(
+                    "#quick-view-modal"
+                )
+            );
+
+        if (isQuickViewButton) {
+            text.textContent =
+                active
+                    ? getFavoriteTranslation(
+                        "quickView.favoriteActive",
+                        "Eliminar de favoritos"
+                    )
+                    : getFavoriteTranslation(
+                        "quickView.favorite",
+                        "Favorito"
+                    );
+
+            return;
+        }
+
         text.textContent =
             active
-                ? "Guardado"
-                : "Favorito";
+                ? getFavoriteTranslation(
+                    "favorites.saved",
+                    "Guardado"
+                )
+                : getFavoriteTranslation(
+                    "favorites.favorite",
+                    "Favorito"
+                );
     }
 }
 
@@ -917,8 +1391,14 @@ function addFavoriteToCart(productId) {
 
     if (!product) {
         showFavoriteToast(
-            "Producto no encontrado",
-            "No fue posible añadir el producto al carrito.",
+            getFavoriteTranslation(
+                "favorites.productNotFoundTitle",
+                "Producto no encontrado"
+            ),
+            getFavoriteTranslation(
+                "favorites.cartNotFoundMessage",
+                "No fue posible añadir el producto al carrito."
+            ),
             "danger"
         );
 
@@ -927,8 +1407,22 @@ function addFavoriteToCart(productId) {
 
     if (Number(product.stock) <= 0) {
         showFavoriteToast(
-            "Producto agotado",
-            `${product.name} no está disponible actualmente.`,
+            getFavoriteTranslation(
+                "favorites.outOfStockTitle",
+                "Producto agotado"
+            ),
+            getFavoriteTranslationWithVariables(
+                "favorites.outOfStockMessage",
+                "{name} no está disponible actualmente.",
+                {
+                    name:
+                        getFavoritesApp()
+                            .getTranslatedProductName?.(
+                                product
+                            ) ||
+                        product.name
+                }
+            ),
             "warning"
         );
 
@@ -1366,3 +1860,24 @@ if (document.readyState === "loading") {
 } else {
     initializeFavorites();
 }
+
+window.addEventListener(
+    "lenchotech-auth-changed",
+    async event => {
+        authenticatedUser =
+            event.detail?.user || null;
+
+        await loadFavorites();
+
+        renderFavorites();
+        synchronizeFavoriteButtons();
+    }
+);
+
+document.addEventListener(
+    "lenchotech:language-changed",
+    () => {
+        renderFavorites();
+        synchronizeFavoriteButtons();
+    }
+);
