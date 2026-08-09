@@ -793,6 +793,20 @@ function createProductCardHTML(product) {
     const visibleProductBadge =
         getTranslatedProductBadge(product);
 
+    const productIndex =
+        LeNCHoTeCHState.filteredProducts
+            .findIndex(
+                currentProduct =>
+                    currentProduct.id ===
+                    product.id
+            );
+
+    const imageLoading =
+        productIndex >= 0 &&
+        productIndex < 6
+            ? "eager"
+            : "lazy";
+
     const hasOldPrice =
         Number(product.oldPrice) >
         Number(product.price);
@@ -873,7 +887,8 @@ function createProductCardHTML(product) {
                     data-product-name="${escapeHTML(
                         visibleProductName
                     )}"
-                    loading="lazy"
+                    loading="${imageLoading}"
+                    decoding="async"
                 >
 
                 <div class="product-card__quick-specs">

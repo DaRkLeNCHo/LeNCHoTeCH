@@ -694,9 +694,11 @@
         position: fixed;
         top: auto;
         right: 12px;
-        bottom: 82px;
+        bottom: 12px;
         left: 12px;
         width: auto;
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
     }
 
     .language-menu::before {
